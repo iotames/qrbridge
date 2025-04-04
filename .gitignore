@@ -1,0 +1,11 @@
+*.db
+*.BK
+*.bk
+*.exe
+*.cookie
+*.log
+*.txt
+*.env
+go.sum
+runtime/
+resource/
