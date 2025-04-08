@@ -8,7 +8,7 @@ import (
 
 // GetHttpClientIP 获取本机IP地址
 // 后续可以通过 net.ParseIP 验证IP地址的有效性
-func GetHttpClientIP(r *http.Request) string {
+func GetHttpClientIP(r http.Request) string {
 	// 首先检查X-Forwarded-For
 	forwarded := r.Header.Get("X-Forwarded-For")
 	if forwarded != "" {

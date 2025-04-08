@@ -15,6 +15,7 @@ type GetIDer interface {
 type IModel interface {
 	GetIDer
 	ToMap(m IModel) map[string]interface{}
+	TableName() string
 }
 
 type BaseModel struct {
