@@ -9,11 +9,11 @@ import (
 )
 
 func main() {
-	// err := db.ExecSqlBySqlFile("sql/init.sql")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	webserver.Run()
+	if Dbinit {
+		dbInit()
+		return
+	}
+	webserver.Run(fmt.Sprintf(":%d", conf.WebServerPort))
 }
 
 func init() {
@@ -29,4 +29,5 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	parseArgs()
 }

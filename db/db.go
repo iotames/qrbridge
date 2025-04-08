@@ -39,7 +39,6 @@ func ExecSqlText(sqlText string) error {
 	// 执行SQL文本
 	_, err := GetDbOpen().Exec(sqlText)
 	return err
-
 }
 
 func ExecSqlBySqlFile(sqlFile string) error {

@@ -3,7 +3,6 @@ package conf
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/iotames/easyconf"
 	"github.com/iotames/miniutils"
@@ -62,16 +61,15 @@ func setConfByEnv() {
 	cf.Parse()
 }
 
-var lg *miniutils.Logger
-
 func LoadEnv() error {
 	var err error
 	setConfByEnv()
-
 	if !miniutils.IsPathExists(ResourceDir) {
-		panic("resource dir not exist:" + ResourceDir)
+		err = miniutils.Mkdir(ResourceDir)
+		if err != nil {
+			return err
+		}
 	}
-
 	if !miniutils.IsPathExists(RuntimeDir) {
 		fmt.Printf("------创建runtime目录(%s)--\n", RuntimeDir)
 		err = os.Mkdir(RuntimeDir, 0755)
@@ -79,6 +77,5 @@ func LoadEnv() error {
 			fmt.Printf("----runtime目录(%s)创建失败(%v)---\n", RuntimeDir, err)
 		}
 	}
-	lg = miniutils.GetLogger(filepath.Join(RuntimeDir, "logs"))
 	return err
 }

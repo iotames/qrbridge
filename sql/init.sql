@@ -1,21 +1,20 @@
-CREATE TABLE qrcode_data (
-    id BIGSERIAL PRIMARY KEY,
-    qrcode VARCHAR(64) NOT NULL,
-    to_url VARCHAR(255) NOT NULL,
+CREATE TABLE st_qrcode_list (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    code VARCHAR(64) NOT NULL,
+    to_url VARCHAR(255) NOT NULL DEFAULT '',
     pv INTEGER NOT NULL DEFAULT 0, -- 总访问量
-    created_at BIGINT NOT NULL, -- 创建时间
-    updated_at BIGINT NOT NULL, -- 更新时间
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 创建时间
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 更新时间
     status SMALLINT NOT NULL DEFAULT 10,
-    CONSTRAINT uk_qrcode UNIQUE (qrcode)
+    CONSTRAINT uk_code UNIQUE (code)
 );
 
-CREATE TABLE qrcode_data_query_log (
-    id BIGSERIAL PRIMARY KEY,
-    qrcode VARCHAR(64) NOT NULL,
-    user_agent VARCHAR(255) NOT NULL,
-    request_headers TEXT NOT NULL,
-    request_ip VARCHAR(30) NOT NULL,
-    created_at BIGINT NOT NULL, -- 创建时间
-    updated_at BIGINT NOT NULL, -- 更新时间
-    CONSTRAINT idx_qrcode_query_log UNIQUE (qrcode)
+CREATE TABLE st_qrcode_query_log (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    code VARCHAR(64) NOT NULL,
+    user_agent VARCHAR(255) DEFAULT '',
+    request_headers TEXT NOT NULL DEFAULT '',
+    request_ip VARCHAR(45) DEFAULT '',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 创建时间
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- 更新时间
 );
