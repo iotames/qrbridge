@@ -12,7 +12,7 @@ import (
 // querySQL SQL查询语句
 // args: SQL参数
 // dest: 用于接收结果的结构体指针
-func GetOne(querySQL string, dest interface{}, args ...interface{}) error {
+func GetOne(querySQL string, dest []interface{}, args ...interface{}) error {
 	// 使用预处理语句执行查询，防止SQL注入
 	stmt, err := GetDbOpen().Prepare(querySQL)
 	if err != nil {
@@ -22,9 +22,10 @@ func GetOne(querySQL string, dest interface{}, args ...interface{}) error {
 
 	// 执行预处理查询
 	row := stmt.QueryRow(args...)
-	if err := row.Scan(dest); err != nil {
+	if err := row.Scan(dest...); err != nil {
 		if err == sql.ErrNoRows {
-			return fmt.Errorf("未找到匹配的数据记录")
+			// return fmt.Errorf("未找到匹配的数据记录")
+			return nil
 		}
 		return fmt.Errorf("查询数据失败: %v", err)
 	}

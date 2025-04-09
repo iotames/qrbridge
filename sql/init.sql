@@ -1,8 +1,9 @@
 CREATE TABLE st_qrcode_list (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    code VARCHAR(64) NOT NULL,
-    to_url VARCHAR(255) NOT NULL DEFAULT '',
+    code VARCHAR(255) NOT NULL,
     pv INTEGER NOT NULL DEFAULT 0, -- 总访问量
+    to_url VARCHAR(255) NOT NULL DEFAULT '',
+    code_parsed VARCHAR(255) NOT NULL DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 创建时间
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 更新时间
     status SMALLINT NOT NULL DEFAULT 10,
@@ -11,7 +12,8 @@ CREATE TABLE st_qrcode_list (
 
 CREATE TABLE st_qrcode_query_log (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    code VARCHAR(64) NOT NULL,
+    code VARCHAR(255) NOT NULL,
+    request_url VARCHAR(255) DEFAULT '',
     user_agent VARCHAR(255) DEFAULT '',
     request_headers TEXT NOT NULL DEFAULT '',
     request_ip VARCHAR(45) DEFAULT '',

@@ -9,9 +9,12 @@ import (
 )
 
 func main() {
+	defer db.DbClose()
 	if Dbinit {
 		dbInit()
 		return
+	} else {
+		CheckDbInit()
 	}
 	webserver.Run(fmt.Sprintf(":%d", conf.WebServerPort))
 }

@@ -5,18 +5,20 @@ import (
 	"fmt"
 	"net/http"
 
-	// "github.com/iotames/qrbridge/db"
 	"github.com/iotames/qrbridge/db"
 	dbtable "github.com/iotames/qrbridge/dbtable"
 	"github.com/iotames/qrbridge/util"
 )
 
-func GetOneQrcode(r http.Request) (qrcode dbtable.Qrcode, err error) {
-	code := r.URL.Query().Get("code")
-	err = db.GetOne(fmt.Sprintf("select * from %s where code = $1", qrcode.TableName()), &qrcode, code)
-	return qrcode, err
+func GetOneQrcode(qrid *int, qrToUrl *string, code string) error {
+	qrcode := dbtable.Qrcode{}
+	querySQL := fmt.Sprintf("select id, to_url from %s where code = $1", qrcode.TableName())
+	return db.GetOne(querySQL, []interface{}{qrid, qrToUrl}, code)
 }
-func UpdateQrcode(r http.Request, isNew bool) {
+
+// UpdateQrcode 更新数据库的二维码查询记录
+// TODO 待优化，应使用事务，把更新二维码表和二维码查询日志表的操作放在一个事务中
+func UpdateQrcode(r http.Request, toUrl string, status int, isNew bool, codeParsed string) {
 	lg := util.GetLogger()
 	code := r.URL.Query().Get("code")
 	requestIp := util.GetHttpClientIP(r)
@@ -28,20 +30,23 @@ func UpdateQrcode(r http.Request, isNew bool) {
 		requestHeaders = []byte("{}")
 	}
 
-	// 更新数据库中的数据
+	// 更新二维码表
 	qr := dbtable.Qrcode{}
+	qrTable := qr.TableName()
 	if isNew {
-		// TODO
-		db.ExecInsert(qr.TableName(), []string{}, []interface{}{code, r.URL.Query().Get("to_url"), 1, 1, requestIp, userAgent, string(requestHeaders)})
+		cols := []string{"code", "to_url", "code_parsed", "pv", "status"}
+		colsVal := []interface{}{code, toUrl, codeParsed, 1, status}
+		db.ExecInsert(qrTable, cols, colsVal)
 	} else {
-		// TODO
-		// db.ExecUpdate(qr.TableName(), "pv = pv + 1", "code = $1", code)
+		updateSQL := fmt.Sprintf("update %s set pv = pv + 1, updated_at = CURRENT_TIMESTAMP where code = '%s'", qrTable, code)
+		db.ExecSqlText(updateSQL)
 	}
+	requestUrl := r.URL.String()
 
-	// 插入数据
-	qrlg := dbtable.QrcodeQueryLog{}
-	db.ExecInsert(qrlg.TableName(), []string{}, []interface{}{code, requestIp, userAgent, string(requestHeaders)})
-
-	lg.Debugf("code: %s, request_ip: %s, user_agent(%s)---hdr(%s)", code, requestIp, userAgent, string(requestHeaders))
-
+	// 插入二维码查询日志表
+	qrlog := dbtable.QrcodeQueryLog{}
+	cols := []string{"code", "request_url", "user_agent", "request_headers", "request_ip"}
+	colsVal := []interface{}{code, requestUrl, userAgent, string(requestHeaders), requestIp}
+	db.ExecInsert(qrlog.TableName(), cols, colsVal)
+	// lg.Debugf("---UpdateQrcode--requestUrl(%s)-code: %s, request_ip: %s, user_agent(%s)---hdr(%s)", requestUrl, code, requestIp, userAgent, string(requestHeaders))
 }

@@ -35,10 +35,20 @@ func DbOpen(dbPort int, driverName, dbHost, dbUser, dbPassword, dbName string) e
 	return err
 }
 
-func ExecSqlText(sqlText string) error {
-	// 执行SQL文本
-	_, err := GetDbOpen().Exec(sqlText)
-	return err
+// IsTableExist 检查表是否存在
+func IsTableExist(tableName string) (bool, error) {
+	// 查询系统表以检查表是否存在
+	query := `SELECT EXISTS (
+		SELECT 1 
+		FROM information_schema.tables 
+		WHERE table_name = $1
+	)`
+	var exists bool
+	err := GetDbOpen().QueryRow(query, tableName).Scan(&exists)
+	if err != nil {
+		return exists, fmt.Errorf("查询表是否存在失败: %v", err)
+	}
+	return exists, err
 }
 
 func ExecSqlBySqlFile(sqlFile string) error {
@@ -50,39 +60,6 @@ func ExecSqlBySqlFile(sqlFile string) error {
 
 	// 执行SQL文本
 	return ExecSqlText(string(sqlBytes))
-}
-
-// ExecSqlWithTransaction 在事务中执行多条SQL语句
-func ExecSqlWithTransaction(sqlStatements []string) error {
-	// 开始事务
-	tx, err := GetDbOpen().Begin()
-	if err != nil {
-		return fmt.Errorf("开始事务失败: %v", err)
-	}
-
-	// 确保函数结束时要么提交要么回滚事务
-	defer func() {
-		if p := recover(); p != nil {
-			tx.Rollback()
-			panic(p) // 重新抛出panic
-		}
-	}()
-
-	// 执行每条SQL语句
-	for _, sql := range sqlStatements {
-		_, err := tx.Exec(sql)
-		if err != nil {
-			tx.Rollback()
-			return fmt.Errorf("执行SQL失败: %v", err)
-		}
-	}
-
-	// 提交事务
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("提交事务失败: %v", err)
-	}
-
-	return nil
 }
 
 // DbClose 关闭数据库连接

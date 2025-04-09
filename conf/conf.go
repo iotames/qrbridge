@@ -27,10 +27,11 @@ const DEFAULT_DB_PASSWORD = "postgres"
 
 var RuntimeDir string
 var ResourceDir string
+var ToBaseUrl string
 var WebServerPort int
 var ShowSql bool
 var DbDriver, DbHost, DbName, DbSchema, DbUsername, DbPassword string
-var DbPort, DbNodeId int
+var DbPort, DbNodeId, EncryptMultiple, EncryptAdd int
 
 func getEnvFile() string {
 	efile := os.Getenv("QR_ENV_FILE")
@@ -57,6 +58,10 @@ func setConfByEnv() {
 	cf.StringVar(&DbUsername, "DB_USERNAME", DEFAULT_DB_USERNAME, "数据库用户名")
 	cf.StringVar(&DbPassword, "DB_PASSWORD", DEFAULT_DB_PASSWORD, "数据库密码")
 	cf.IntVar(&DbNodeId, "DB_NODE_ID", 1, "数据库节点号")
+
+	cf.IntVar(&EncryptMultiple, "ENCRYPT_MULTIPLE", 2, "加密倍数")
+	cf.IntVar(&EncryptAdd, "ENCRYPT_ADD", 10086, "加密增量")
+	cf.StringVar(&ToBaseUrl, "TO_BASE_URL", "", "跳转目标的URL前缀。如：https://www.baidu.com")
 
 	cf.Parse()
 }

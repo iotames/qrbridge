@@ -30,7 +30,12 @@ func ExecInsert(tableName string, columns []string, values []interface{}) error 
 }
 
 // ExecUpdate 执行更新语句
-func ExecUpdate(tableName string, columns []string, values []interface{}, whereClause string, whereValues []interface{}) error {
+// tableName: 表名
+// columns: 要更新的列名
+// values: 要更新的值
+// whereClause: WHERE子句。例如："id = $1"
+// whereValues: WHERE子句中的参数值。例如：[]interface{}{1}
+func ExecUpdateByValues(tableName string, columns []string, values []interface{}, whereClause string, whereValues []interface{}) error {
 	// 构建SET子句
 	setClause := make([]string, len(columns))
 	paramCount := 1
