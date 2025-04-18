@@ -9,7 +9,7 @@ import (
 )
 
 // GetOneData 根据where条件查询单条数据，支持结构体指针或map接收结果
-// querySQL SQL查询语句
+// querySQL SQL查询语句 例：select field1, field2 from table1 where name = $1 and status = $2
 // dest: 用于接收结果的结构体指针或map[string]any
 // args: SQL参数
 func GetOneData(querySQL string, dest interface{}, args ...interface{}) error {
