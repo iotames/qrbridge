@@ -8,21 +8,18 @@ import (
 	"github.com/iotames/easyserver/httpsvr"
 	"github.com/iotames/easyserver/response"
 	"github.com/iotames/qrbridge/db"
-	"github.com/iotames/qrbridge/service"
+	"github.com/iotames/qrbridge/sql"
 	"github.com/iotames/qrbridge/util"
 )
 
 func pricing_percent(ctx httpsvr.Context) {
-	sqlText, err := service.GetSqlText("pricing_percent.sql")
-	if err != nil {
-		// 数据库查询SQL获取失败
-		ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())
-		return
-	}
-	sqlText = strings.ReplaceAll(sqlText, "---%s---", "%s")
+	var err error
 	customer_name := ctx.Request.URL.Query().Get("customer_name")
 	clothing_material_type_detail_name := ctx.Request.URL.Query().Get("clothing_material_type_detail_name")
-	// TODO 微服务暂时不考虑SQL注入的情况
+
+	// whereList 此处的whereList 是为了拼接 where 语句
+	// $where1 = " and cp.customer_name in('".$sCustomerShortName."') ";
+	// $where2 = " and cp.clothing_material_type_detail_name in('".$sStyleArchivesMaterialTypeDetailName."') ";
 	var whereList []string
 	var queryArgs []interface{}
 	var where1 []string
@@ -43,10 +40,13 @@ func pricing_percent(ctx httpsvr.Context) {
 		whereList = append(whereList, fmt.Sprintf("and cp.clothing_material_type_detail_name in(%s)", strings.Join(where2, ",")))
 	}
 	queryStr := strings.Join(whereList, " ")
-	sqlText = fmt.Sprintf(sqlText, queryStr)
-	//  ".$where1.$where2."
-	// $where1 = " and cp.customer_name in('".$sCustomerShortName."') ";
-	// $where2 = " and cp.clothing_material_type_detail_name in('".$sStyleArchivesMaterialTypeDetailName."') ";
+	var sqlText string
+	sqlText, err = sql.GetSQL("pricing_percent.sql", queryStr)
+	if err != nil {
+		// 数据库查询SQL获取失败
+		ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())
+		return
+	}
 
 	lg := util.GetLogger()
 	lg.Debugf("------pricing_percent---sqlText(%s)---queryArgs(%v)--", sqlText, queryArgs)

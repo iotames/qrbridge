@@ -47,6 +47,10 @@ func main() {
 	} else {
 		CheckDbInit()
 	}
+	if Debug {
+		debug()
+		return
+	}
 	webserver.Run(fmt.Sprintf(":%d", conf.WebServerPort))
 }
 
