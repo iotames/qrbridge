@@ -16,6 +16,7 @@ const DRIVER_POSTGRES = "postgres"
 const DEFAULT_ENV_FILE = ".env"
 const DEFAULT_RUNTIME_DIR = "runtime"
 const DEFAULT_RESOURCE_DIR = "resource"
+const DEFAULT_CUSTOM_DIR = "custom"
 const DEFAULT_WEB_SERVER_PORT = 8080
 const DEFAULT_DB_DRIVER = DRIVER_POSTGRES
 const DEFAULT_DB_HOST = "127.0.0.1"
@@ -25,8 +26,7 @@ const DEFAULT_DB_SCHEMA = "public"
 const DEFAULT_DB_USERNAME = "postgres"
 const DEFAULT_DB_PASSWORD = "postgres"
 
-var RuntimeDir string
-var ResourceDir string
+var RuntimeDir, ResourceDir, CustomDir string
 var ToBaseUrl string
 var WebServerPort int
 var ShowSql bool
@@ -47,6 +47,7 @@ func setConfByEnv() {
 
 	cf.StringVar(&RuntimeDir, "RUNTIME_DIR", DEFAULT_RUNTIME_DIR, "")
 	cf.StringVar(&ResourceDir, "RESOURCE_DIR", DEFAULT_RESOURCE_DIR, "")
+	cf.StringVar(&CustomDir, "CUSTOM_DIR", DEFAULT_CUSTOM_DIR, "放置自定义的各种文件")
 	cf.IntVar(&WebServerPort, "WEB_SERVER_PORT", DEFAULT_WEB_SERVER_PORT, "启动Web服务器的端口号")
 
 	cf.BoolVar(&ShowSql, "SHOW_SQL", false, "是否输出SQL调试信息")
