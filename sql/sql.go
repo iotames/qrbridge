@@ -2,7 +2,6 @@ package sql
 
 import (
 	"embed"
-	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -14,22 +13,36 @@ import (
 var sqlFS embed.FS
 
 // getSqlText 获取sql文本
-// TODO 优先从自定义目录中读取sql文本，如果不存在，则从默认目录中读取sql文本，如果都不存在，则从内嵌的文件中读取sql文本
-func getSqlText(fpath string) (string, error) {
+// 优先从custom/sql自定义目录读取sql。如找不到SQL文件，则从默认的sql目录中读取。如再找不到文件，则从内嵌文件中读取。
+func getSqlText(fpath string) (sqlTxt string, err error) {
 	defaultFilePath := filepath.Join("sql", fpath)
 	customDirPath := filepath.Join(conf.CustomDir, "sql", fpath)
-	return util.GetTextByFilePath(defaultFilePath, customDirPath)
+	// 优先从custom/sql自定义目录读取sql。如找不到SQL文件，则从默认的sql目录中读取。
+	sqlTxt, err = util.GetTextByFilePath(defaultFilePath, customDirPath)
+	if sqlTxt == "" {
+		// 找不到文件，从内嵌的文件中读取sql文件
+		var sqlBytes []byte
+		sqlBytes, err = sqlFS.ReadFile(fpath)
+		if err != nil {
+			return
+		}
+		sqlTxt = string(sqlBytes)
+	}
+	return
 }
 
 // GetSQL 获取sql文本
-// TODO replaceAny 是为了替换sql文本中的占位符, 占位符的格式为 ---%s---.只支持字符串类型的占位符
-func GetSQL(fpath string, replaceAny ...any) (string, error) {
+// replaceList 字符串列表，依次替换SQL文本中的?占位符
+// TODO 需要强调占位符与通配符的区别，比如%和_在LIKE子句中不是占位符，而是通配符，需要和参数化查询中的占位符区分开。
+func GetSQL(fpath string, replaceList ...string) (string, error) {
 	sqlTxt, err := getSqlText(fpath)
 	if err != nil {
 		return "", err
 	}
-	sqlTxt = strings.ReplaceAll(sqlTxt, "---%s---", "%s")
-	return fmt.Sprintf(sqlTxt, replaceAny...), nil
+	for _, rerplaceStr := range replaceList {
+		sqlTxt = strings.Replace(sqlTxt, "?", rerplaceStr, 1)
+	}
+	return sqlTxt, nil
 }
 
 func LsDir() []string {

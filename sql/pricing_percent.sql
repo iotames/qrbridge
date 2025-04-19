@@ -45,5 +45,5 @@ where cp.cost_actual_finish_time is not null
  and price_type_name='大货核价' AND cp.process_template_desc='已完成'
  and to_char(calculate_date,'yyyy')>='2023'
  and cp.order_sku_qty<=300
- ---%s---
+ ?
  )tt

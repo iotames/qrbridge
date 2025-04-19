@@ -7,7 +7,9 @@ import (
 )
 
 func debug() {
-	for _, f := range sql.LsDir() {
-		fmt.Println(f)
+	sqlTxt, err := sql.GetSQL("pricing_percent.sql", "and cp.customer_name in(?, ?, ?)")
+	if err != nil {
+		panic(err)
 	}
+	fmt.Printf("-----------sqlTxt(%s)--------", sqlTxt)
 }
