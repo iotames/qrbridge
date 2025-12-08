@@ -10,6 +10,8 @@ import (
 	"github.com/iotames/qrbridge/webserver"
 )
 
+const VERSION = "v1.0.1"
+
 func main() {
 	args := os.Args
 
@@ -49,6 +51,10 @@ func main() {
 	}
 	if Debug {
 		debug()
+		return
+	}
+	if vsion {
+		fmt.Println("QRBridge", VERSION)
 		return
 	}
 	webserver.Run(fmt.Sprintf(":%d", conf.WebServerPort))

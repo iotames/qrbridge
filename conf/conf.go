@@ -64,7 +64,7 @@ func setConfByEnv() {
 	cf.IntVar(&EncryptAdd, "ENCRYPT_ADD", 10086, "加密增量")
 	cf.StringVar(&ToBaseUrl, "TO_BASE_URL", "", "跳转目标的URL前缀。如：https://www.baidu.com")
 
-	cf.Parse()
+	cf.Parse(false)
 }
 
 func LoadEnv() error {

@@ -5,5 +5,5 @@ import (
 )
 
 func setMiddlewares(svr *httpsvr.EasyServer) {
-	svr.AddMiddleware(httpsvr.NewMiddleCORS("*"))
+	svr.AddMiddleHead(httpsvr.NewMiddleCORS("*"))
 }
