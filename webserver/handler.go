@@ -14,9 +14,12 @@ import (
 func setHandler(svr *httpsvr.EasyServer) {
 	svr.AddHandler("GET", "/hello", hello)
 	svr.AddHandler("GET", "/qrcode", qrcode)
+	svr.AddHandler("GET", "/codetest"+strconv.Itoa(conf.EncryptAdd), codetest)
+
 	// 成本核价占比
 	svr.AddHandler("GET", "/pricing_percent", pricing_percent)
-	svr.AddHandler("GET", "/codetest"+strconv.Itoa(conf.EncryptAdd), codetest)
+	// PO导入
+	svr.AddHandler("POST", "/api/poimport", poimport)
 }
 
 func hello(ctx httpsvr.Context) {

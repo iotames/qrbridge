@@ -4,8 +4,11 @@ import (
 	"embed"
 	"fmt"
 
+	"github.com/iotames/qrbridge/conf"
 	"github.com/iotames/qrbridge/db"
 	"github.com/iotames/qrbridge/dbtable"
+	"github.com/iotames/qrbridge/hotswap"
+	"github.com/iotames/qrbridge/sql"
 )
 
 //go:embed sql/*
@@ -35,4 +38,9 @@ func CheckDbInit() {
 		fmt.Println("数据库未初始化，正在初始化数据库...")
 		dbInit()
 	}
+}
+
+func initScript() {
+	sqldir := hotswap.NewScriptDir(sql.GetSqlFs(), conf.CustomDir, "sql")
+	hotswap.GetScriptDir(sqldir)
 }

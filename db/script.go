@@ -1,0 +1,42 @@
+package db
+
+import (
+	"github.com/iotames/qrbridge/hotswap"
+)
+
+// // getSqlText 获取sql文本
+// // 优先从custom/sql自定义目录读取sql。如找不到SQL文件，则从默认的sql目录中读取。如再找不到文件，则从内嵌文件中读取。
+// func getSqlText(fpath string) (sqlTxt string, err error) {
+// 	defaultFilePath := filepath.Join("sql", fpath)
+// 	customDirPath := filepath.Join(conf.CustomDir, "sql", fpath)
+// 	// 优先从custom/sql自定义目录读取sql。如找不到SQL文件，则从默认的sql目录中读取。
+// 	sqlTxt, err = util.GetTextByFilePath(defaultFilePath, customDirPath)
+// 	if sqlTxt == "" {
+// 		// 找不到文件，从内嵌的文件中读取sql文件
+// 		var sqlBytes []byte
+// 		sqlBytes, err = sql.GetSqlFs().ReadFile(fpath)
+// 		if err != nil {
+// 			return
+// 		}
+// 		sqlTxt = string(sqlBytes)
+// 	}
+// 	return
+// }
+
+// GetSQL 获取sql文本
+// replaceList 字符串列表，依次替换SQL文本中的?占位符
+// TODO 需要强调占位符与通配符的区别，比如%和_在LIKE子句中不是占位符，而是通配符，需要和参数化查询中的占位符区分开。
+func GetSQL(fpath string, replaceList ...string) (string, error) {
+	// sqlTxt, err := getSqlText(fpath)
+	sd := hotswap.GetScriptDir(nil)
+	return sd.GetSQL(fpath, replaceList...)
+
+	// sqlTxt, err := sd.GetScriptText(fpath)
+	// if err != nil {
+	// 	return "", err
+	// }
+	// for _, rerplaceStr := range replaceList {
+	// 	sqlTxt = strings.Replace(sqlTxt, "?", rerplaceStr, 1)
+	// }
+	// return sqlTxt, nil
+}

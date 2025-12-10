@@ -8,7 +8,6 @@ import (
 	"github.com/iotames/easyserver/httpsvr"
 	"github.com/iotames/easyserver/response"
 	"github.com/iotames/qrbridge/db"
-	"github.com/iotames/qrbridge/sql"
 	"github.com/iotames/qrbridge/util"
 )
 
@@ -41,7 +40,7 @@ func pricing_percent(ctx httpsvr.Context) {
 	}
 	queryStr := strings.Join(whereList, " ")
 	var sqlText string
-	sqlText, err = sql.GetSQL("pricing_percent.sql", queryStr)
+	sqlText, err = db.GetSQL("pricing_percent.sql", queryStr)
 	if err != nil {
 		// 数据库查询SQL获取失败
 		ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())

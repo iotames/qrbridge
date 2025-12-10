@@ -10,7 +10,7 @@ import (
 	"github.com/iotames/qrbridge/webserver"
 )
 
-const VERSION = "v1.0.1"
+const VERSION = "v1.0.2"
 
 func main() {
 	args := os.Args
@@ -74,4 +74,5 @@ func init() {
 		panic(err)
 	}
 	parseArgs()
+	initScript()
 }
