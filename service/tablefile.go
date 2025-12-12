@@ -18,8 +18,15 @@ type TableFile struct {
 func NewTableFile(filepath string) *TableFile {
 	return &TableFile{filePath: filepath}
 }
-func (f TableFile) OpenExcel() (ef *excelize.File, err error) {
-	return excelize.OpenFile(f.filePath)
+
+func (f *TableFile) OpenExcel() (ef *excelize.File, err error) {
+	f.excelFile, err = excelize.OpenFile(f.filePath)
+	return f.excelFile, err
+}
+
+func (f *TableFile) NewExcel() (ef *excelize.File) {
+	f.excelFile = excelize.NewFile()
+	return f.excelFile
 }
 
 // SetRowData. rowi startbegin 1

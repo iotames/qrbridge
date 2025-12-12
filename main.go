@@ -10,7 +10,7 @@ import (
 	"github.com/iotames/qrbridge/webserver"
 )
 
-const VERSION = "v1.0.2"
+const VERSION = "v1.0.3"
 
 func main() {
 	args := os.Args
