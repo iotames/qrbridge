@@ -52,7 +52,7 @@ func poimport(ctx httpsvr.Context) {
 	// 打印inputfile字段
 	fmt.Printf("接收到的inputfile(%s); outputfile(%s)\n", inputfile, outputfile)
 	tpllist := []string{"Rohnisch"}
-	if slices.Contains(tpllist, inputtpl) == false {
+	if !slices.Contains(tpllist, inputtpl) {
 		err = fmt.Errorf("inputtpl参数错误: 仅支持(%s)", strings.Join(tpllist, ","))
 		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
 		return

@@ -10,9 +10,23 @@ import (
 	"github.com/iotames/qrbridge/webserver"
 )
 
-const VERSION = "v1.0.3"
+const VERSION = "v1.0.4"
 
 func main() {
+	if vsion {
+		fmt.Println("QRBridge", VERSION)
+		return
+	}
+
+	err := db.DbOpen(conf.DbPort, conf.DbDriver, conf.DbHost, conf.DbUsername, conf.DbPassword, conf.DbName)
+	if err != nil {
+		panic(err)
+	}
+	err = db.GetDbOpen().Ping()
+	if err != nil {
+		panic(err)
+	}
+
 	args := os.Args
 
 	for k, v := range args {
@@ -53,10 +67,6 @@ func main() {
 		debug()
 		return
 	}
-	if vsion {
-		fmt.Println("QRBridge", VERSION)
-		return
-	}
 	webserver.Run(fmt.Sprintf(":%d", conf.WebServerPort))
 }
 
@@ -64,14 +74,6 @@ func init() {
 	err := conf.LoadEnv()
 	if err != nil {
 		panic(fmt.Errorf("init err(%v)", err))
-	}
-	err = db.DbOpen(conf.DbPort, conf.DbDriver, conf.DbHost, conf.DbUsername, conf.DbPassword, conf.DbName)
-	if err != nil {
-		panic(err)
-	}
-	err = db.GetDbOpen().Ping()
-	if err != nil {
-		panic(err)
 	}
 	parseArgs()
 	initScript()
