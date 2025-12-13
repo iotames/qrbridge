@@ -67,6 +67,10 @@ func setConfByEnv() {
 	cf.Parse(false)
 }
 
+func ShowConf() {
+	fmt.Println(cf.String())
+}
+
 func LoadEnv() error {
 	var err error
 	setConfByEnv()

@@ -10,58 +10,25 @@ import (
 	"github.com/iotames/qrbridge/webserver"
 )
 
-const VERSION = "v1.0.4"
+// 使用-ldflags参数在编译时设置 Version 和 DbFlag 的值
+// go build -v -ldflags "-X 'main.BuildTime=$(date +%Y-%m-%d_%H:%M)' -X 'main.Version=v1.0.5' -X 'main.DbFlag=false' "
+var (
+	BuildTime string
+	Version   = "v1.0.5"
+	DbFlag    = "true"
+)
 
 func main() {
 	if vsion {
-		fmt.Println("QRBridge", VERSION)
+		fmt.Printf("QRBridge:%s, BuildTime:%s\n", Version, BuildTime)
+		fmt.Println("DbFlag", DbFlag)
 		return
 	}
-
-	err := db.DbOpen(conf.DbPort, conf.DbDriver, conf.DbHost, conf.DbUsername, conf.DbPassword, conf.DbName)
-	if err != nil {
-		panic(err)
-	}
-	err = db.GetDbOpen().Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	args := os.Args
-
-	for k, v := range args {
-		if v == "-d" || v == "--d" {
-			Daemon = true
-			args[k] = ""
-		}
-		if v == "stop" {
-			fmt.Println("删除功能不可用")
-			return
-		}
-
-	}
-	if Daemon {
-		fmt.Println("启动守护进程，后台运行程序")
-		var newArgs []string
-		if len(args) > 1 {
-			newArgs = args[1:]
-		}
-		cmd := exec.Command(args[0], newArgs...)
-		cmd.Env = os.Environ()
-		err := cmd.Start()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("守护进程启动成功，进程号：", cmd.Process.Pid)
+	if checkDaemon() {
 		return
 	}
-
-	defer db.DbClose()
-	if Dbinit {
-		dbInit()
-		return
-	} else {
-		CheckDbInit()
+	if DbFlag == "true" {
+		CheckDb()
 	}
 	if Debug {
 		debug()
@@ -77,4 +44,53 @@ func init() {
 	}
 	parseArgs()
 	initScript()
+}
+
+func CheckDb() bool {
+	if conf.DbDriver == "" {
+		fmt.Println("警告：数据库驱动 DB_DRIVER 未配置")
+	} else {
+		err := db.DbOpen(conf.DbPort, conf.DbDriver, conf.DbHost, conf.DbUsername, conf.DbPassword, conf.DbName)
+		if err != nil {
+			panic(err)
+		}
+		err = db.GetDbOpen().Ping()
+		if err != nil {
+			panic(err)
+		}
+		defer db.DbClose()
+		CheckDbInit()
+	}
+	return true
+}
+
+func checkDaemon() bool {
+	args := os.Args
+
+	for k, v := range args {
+		if v == "-d" || v == "--d" {
+			Daemon = true
+			args[k] = ""
+		}
+		if v == "stop" {
+			fmt.Println("停止功能不可用")
+			return true
+		}
+	}
+	if Daemon {
+		fmt.Println("启动守护进程，后台运行程序")
+		var newArgs []string
+		if len(args) > 1 {
+			newArgs = args[1:]
+		}
+		cmd := exec.Command(args[0], newArgs...)
+		cmd.Env = os.Environ()
+		err := cmd.Start()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("守护进程启动成功，进程号：", cmd.Process.Pid)
+		return true
+	}
+	return false
 }
