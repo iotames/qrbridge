@@ -44,3 +44,7 @@ func initScript() {
 	sqldir := hotswap.NewScriptDir(sql.GetSqlFs(), conf.CustomDir, "sql")
 	hotswap.GetScriptDir(sqldir)
 }
+
+func startBrowser() error {
+	return StartBrowserByUrl(fmt.Sprintf("http://127.0.0.1:%d", conf.WebServerPort))
+}

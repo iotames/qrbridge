@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/iotames/qrbridge/conf"
 	"github.com/iotames/qrbridge/db"
@@ -11,10 +13,10 @@ import (
 )
 
 // 使用-ldflags参数在编译时设置 Version 和 DbFlag 的值
-// go build -v -ldflags "-X 'main.BuildTime=$(date +%Y-%m-%d_%H:%M)' -X 'main.Version=v1.0.5' -X 'main.DbFlag=false' "
+// go build -v -ldflags "-X 'main.BuildTime=$(date +%Y-%m-%d_%H:%M)' -X 'main.Version=v1.1.0' -X 'main.DbFlag=false' "
 var (
 	BuildTime string
-	Version   = "v1.0.5"
+	Version   = "v1.1.0"
 	DbFlag    = "true"
 )
 
@@ -34,7 +36,18 @@ func main() {
 		debug()
 		return
 	}
-	webserver.Run(fmt.Sprintf(":%d", conf.WebServerPort))
+
+	if IsPathExists("tpl/index.html") {
+		go func() {
+			time.Sleep(1 * time.Second)
+			err := startBrowser()
+			if err != nil {
+				log.Println("startBrowser Error:", err)
+			}
+		}()
+	}
+
+	webserver.Run(conf.WebServerPort)
 }
 
 func init() {

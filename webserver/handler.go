@@ -12,6 +12,7 @@ import (
 )
 
 func setHandler(svr *httpsvr.EasyServer) {
+	svr.AddHandler("GET", "/", home)
 	svr.AddHandler("GET", "/hello", hello)
 	svr.AddHandler("GET", "/qrcode", qrcode)
 	svr.AddHandler("GET", "/codetest"+strconv.Itoa(conf.EncryptAdd), codetest)
@@ -20,6 +21,8 @@ func setHandler(svr *httpsvr.EasyServer) {
 	svr.AddHandler("GET", "/pricing_percent", pricing_percent)
 	// PO导入
 	svr.AddHandler("POST", "/api/poimport", poimport)
+	svr.AddHandler("POST", "/api/potransform", potransform)
+	svr.AddHandler("POST", "/api/uploadfile", uploadfile)
 }
 
 func hello(ctx httpsvr.Context) {
@@ -40,4 +43,12 @@ func postJsonValue(ctx httpsvr.Context, v any) error {
 		return fmt.Errorf("解析JSON失败json.Unmarshal error: %w", err)
 	}
 	return err
+}
+
+func home(ctx httpsvr.Context) {
+	data := map[string]interface{}{
+		"web_server_port": webServerPort,
+	}
+	SetContentByTplFile("tpl/index.html", ctx.Writer, data)
+	// ctx.Writer.Write(response.NewApiDataOk("hello api").Bytes())
 }
