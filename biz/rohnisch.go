@@ -15,7 +15,7 @@ func PoFileTransform(inputtpl, inputfile, outputfile string) (info PoInfo, err e
 	if err != nil {
 		return PoInfo{}, fmt.Errorf("打开Excel文件失败: %w", err)
 	}
-	if inputtpl == "Rohnisch" {
+	if inputtpl == "A89SP" {
 		sheets := f.GetSheetList()
 		for i, sheet := range sheets {
 			poSheetDataParseRohnisch(f, sheet, i, &info)

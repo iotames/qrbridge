@@ -6,12 +6,12 @@ HTTP请求示例:
 
 ```json
 // 正常返回
-curl -X POST http://127.0.0.1:8080/api/poimport   -H "Content-Type: application/json"   -d '{"inputtpl":"Rohnisch","inputfile":"D:\\Users\\santic\\Downloads\\PO SS26 Main (1)(2).xlsx","outputfile":"poss26main.xlsx"}'
+curl -X POST http://127.0.0.1:8080/api/poimport   -H "Content-Type: application/json"   -d '{"inputtpl":"A89SP","inputfile":"D:\\Users\\santic\\Downloads\\PO SS26 Main (1)(2).xlsx","outputfile":"poss26main.xlsx"}'
 {"code":200,"msg":"success","data":{"inputfile":"D:\\Users\\santic\\Downloads\\PO SS26 Main (1)(2).xlsx","outputfile":"poss26main.xlsx"}}
 
 // 异常返回
 curl -X POST http://localhost:8080/api/poimport   -H "Content-Type: application/json"   -d '{"inputfile":"D:\\Users\\santic\\Downloads\\PO SS26 Main (1)(2).xlsx","outputfile":"poss26main.xlsx","inputtpl":"Rohnisch9"}'
-{"code":400,"msg":"QueryArgsError.请求参数错误:inputtpl仅支持:Rohnisch","data":{}}
+{"code":400,"msg":"QueryArgsError.请求参数错误:inputtpl仅支持:A89SP","data":{}}
 ```
 
 
@@ -22,7 +22,7 @@ SDK调用示例:
     try {
         // 最好使用绝对路径
         $result = $helper->convertPoToExcel(
-            'Rohnisch',
+            '',
             'customer-po-1.xlsx',
             'export-1.xlsx'
         );

@@ -58,7 +58,7 @@ func poimport(ctx httpsvr.Context) {
 	}
 	// 打印inputfile字段
 	fmt.Printf("接收到的inputfile(%s); outputfile(%s)\n", inputfile, outputfile)
-	tpllist := []string{"Rohnisch"}
+	tpllist := []string{"A89SP"}
 	if !slices.Contains(tpllist, inputtpl) {
 		err = fmt.Errorf("inputtpl参数错误: 仅支持(%s)", strings.Join(tpllist, ","))
 		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
@@ -106,7 +106,7 @@ func potransform(ctx httpsvr.Context) {
 
 	// 打印inputfile字段
 	fmt.Printf("接收到的inputfile(%s); outputfile(%s)\n", inputfile, outputfile)
-	tpllist := []string{"Rohnisch"}
+	tpllist := []string{""}
 	if !slices.Contains(tpllist, inputtpl) {
 		err = fmt.Errorf("inputtpl参数错误: 仅支持(%s)", strings.Join(tpllist, ","))
 		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
@@ -163,4 +163,3 @@ func potransform(ctx httpsvr.Context) {
 	// ctx.Writer.Header().Set("Last-Modified", fileInfo.ModTime().UTC().Format(time.RFC1123))
 	// http.ServeContent(ctx.Writer, ctx.Request, filepath.Base(outputfile), fileInfo.ModTime(), file)
 }
-

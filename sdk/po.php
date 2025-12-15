@@ -21,7 +21,7 @@ class SanticErpHelper
     
     /**
      * 转换PO订单文件为Excel
-     * @param string $inputtpl 输入模板名称，如 "Rohnisch"
+     * @param string $inputtpl 输入模板名称，如 "A89SP"
      * @param string $inputfile 输入文件路径
      * @param string $outputfile 输出文件路径
      * @return array API响应，包含 code, msg, data 字段
@@ -97,7 +97,7 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'])) {
     try {
         // 最好使用绝对路径
         $result = $helper->convertPoToExcel(
-            'Rohnisch',
+            'A89SP',
             'D:\\Users\\santic\\Downloads\\PO SS26 Main (1)(2).xlsx',
             'poss26main.xlsx'
         );

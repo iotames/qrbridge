@@ -1,5 +1,26 @@
 package biz
 
+// A89SP 谢小玉 Rohnisch
+// A5YGC 张春梅
+// A6WHM 张真真
+// B1ZTV 王芳
+// AH8SW 李丝婷
+// A63AM 陈雪娇
+
+type PoCustomer struct {
+	Code   string
+	Remark string
+}
+
+var PoCustomers = []PoCustomer{
+	{"A89SP", "Rohnisch"},
+	{"A5YGC", "A5YGC"},
+	// {"A6WHM", "A6WHM"},
+	// {"B1ZTV", "B1ZTV"},
+	// {"AH8SW", "AH8SW"},
+	// {"A63AM", "A63AM"},
+}
+
 type PoInfo struct {
 	OrderItems []OrderItem
 }
