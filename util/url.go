@@ -15,7 +15,7 @@ type UrlEncrypt struct {
 	encryptField string
 }
 
-// 构建Url参数加密器
+// NewUrlEncrypt 构建Url参数加密器
 // encryptField: 要加密的字段名，值必须是整数
 // multiple: 放大倍数，推荐3倍
 // add: 加的整数。20050324

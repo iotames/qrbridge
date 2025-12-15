@@ -71,3 +71,18 @@ https://127.0.0.1:8080/qrcode?code=bT1tb2R1bGVfbmFtZSZtaWQ9MjAwNTA3MDg
 
 - `st_qrcode_list`: 记录每个二维码的基本信息，比如访问次数，code参数，解析是否成功等。
 - `st_qrcode_query_log`: 记录每个二维码连接的访问历史。包括请求IP，请求头，访问时间等。
+
+
+## 编译
+
+```bash
+# For Linux:
+# go env -w CGO_ENABLED=0
+CGO_ENABLED=0 go build -v -o PO转换工具.exe -trimpath -ldflags "-X 'main.BuildTime=$(date +%Y-%m-%d_%H:%M)' -X 'main.Version=v1.1.0' -X 'main.DbFlag=false' " .
+
+# For Windows:
+# 生成图标和版本信息
+go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
+goversioninfo versioninfo.json
+go build -v -o PO转换工具.exe -trimpath -ldflags "-X 'main.BuildTime=%date:~0,4%-%date:~5,2%-%date:~8,2%_%time:~0,2%:%time:~3,2%' -X 'main.Version=v1.1.0' -X 'main.DbFlag=false' " .
+```
