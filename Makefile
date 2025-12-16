@@ -1,5 +1,5 @@
 CC=go
-APP_VERSION=v1.1.3
+APP_VERSION=v1.2.0
 # 中文乱码，在CFLAGS添加-fexec-charset=UTF-8选项
 
 # # For Windows:

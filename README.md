@@ -86,3 +86,7 @@ go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
 goversioninfo versioninfo.json
 go build -v -o PO转换工具.exe -trimpath -ldflags "-X 'main.BuildTime=%date:~0,4%-%date:~5,2%-%date:~8,2%_%time:~0,2%:%time:~3,2%' -X 'main.Version=v1.1.0' -X 'main.DbFlag=false' " .
 ```
+
+## Bidu Amis低代码引擎
+
+- https://github.com/baidu/amis/releases

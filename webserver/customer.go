@@ -6,14 +6,7 @@ import (
 	"github.com/iotames/qrbridge/biz"
 )
 
-var PoCustomers = []biz.PoCustomer{
-	{Code: "A89SP", Remark: "Rohnisch"},
-	{Code: "A5YGC", Remark: "A5YGC"},
-	// {"A6WHM", "A6WHM"},
-	// {"B1ZTV", "B1ZTV"},
-	// {"AH8SW", "AH8SW"},
-	// {"A63AM", "A63AM"},
-}
+var poCustomers = biz.PoCustomerList
 
 // 客户列表
 //
@@ -28,8 +21,8 @@ var PoCustomers = []biz.PoCustomer{
 //	}
 func customerList(ctx httpsvr.Context) {
 	// 获取所有客户名称
-	options := make([]map[string]string, len(PoCustomers))
-	for i, v := range PoCustomers {
+	options := make([]map[string]string, len(poCustomers))
+	for i, v := range poCustomers {
 		options[i] = map[string]string{"label": v.Code, "value": v.Code}
 	}
 	// json返回

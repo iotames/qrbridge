@@ -17,7 +17,7 @@ import (
 // For Windows: go build -v -o PO转换工具.exe -trimpath -ldflags "-X 'main.BuildTime=%date:~0,4%-%date:~5,2%-%date:~8,2%_%time:~0,2%:%time:~3,2%' -X 'main.Version=v1.1.0' -X 'main.DbFlag=false' " .
 var (
 	BuildTime string
-	Version   = "v1.1.1"
+	Version   = "v1.2.0"
 	DbFlag    = "true"
 )
 

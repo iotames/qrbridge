@@ -10,7 +10,6 @@ import (
 
 	"github.com/iotames/easyserver/httpsvr"
 	"github.com/iotames/easyserver/response"
-	"github.com/iotames/qrbridge/biz"
 )
 
 func poimportCheck(ctx httpsvr.Context) (inputtpl string, inputfile string, outputfile string, err error) {
@@ -58,13 +57,19 @@ func poimport(ctx httpsvr.Context) {
 	}
 	// 打印inputfile字段
 	fmt.Printf("接收到的inputfile(%s); outputfile(%s)\n", inputfile, outputfile)
-	tpllist := []string{"A89SP"}
+	tpllist := poCustomers.GetCodeList()
 	if !slices.Contains(tpllist, inputtpl) {
 		err = fmt.Errorf("inputtpl参数错误: 仅支持(%s)", strings.Join(tpllist, ","))
 		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
 		return
 	}
-	_, err = biz.PoFileTransform(inputtpl, inputfile, outputfile)
+	potransformfunc := poCustomers.GetTransformFunc(inputtpl)
+	if potransformfunc == nil {
+		err = fmt.Errorf("%s 找不到转换对应的转换函数", inputfile)
+		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
+		return
+	}
+	_, err = potransformfunc(inputtpl, inputfile, outputfile)
 	if err != nil {
 		ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())
 		return
@@ -106,14 +111,22 @@ func potransform(ctx httpsvr.Context) {
 
 	// 打印inputfile字段
 	fmt.Printf("接收到的inputfile(%s); outputfile(%s)\n", inputfile, outputfile)
-	tpllist := []string{"A89SP"}
+	tpllist := poCustomers.GetCodeList()
 	if !slices.Contains(tpllist, inputtpl) {
 		err = fmt.Errorf("inputtpl参数错误: 仅支持(%s)", strings.Join(tpllist, ","))
 		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
 		return
 	}
 	fmt.Println("outputfile", outputfile)
-	_, err = biz.PoFileTransform(inputtpl, inputfile, outputfile)
+
+	potransformfunc := poCustomers.GetTransformFunc(inputtpl)
+	if potransformfunc == nil {
+		err = fmt.Errorf("%s 找不到转换对应的转换函数", inputfile)
+		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
+		return
+	}
+	_, err = potransformfunc(inputtpl, inputfile, outputfile)
+
 	if err != nil {
 		ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())
 		return
