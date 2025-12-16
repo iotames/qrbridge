@@ -45,8 +45,8 @@ func poSheetDataParseRohnisch(f *excelize.File, sheetName string, id int, info *
 	deliveryDateFactoryStr := ""                                       // 工厂交期
 	deliveryDateCustomer, err := time.Parse("2006-01-02", deliveryDateCustomerStr)
 	if err == nil {
-		deliveryDateFactoryLeave := deliveryDateCustomer.AddDate(0, 0, -7)
-		deliveryDateFactory := deliveryDateFactoryLeave.AddDate(0, 0, 7)
+		deliveryDateFactoryLeave := deliveryDateCustomer.AddDate(0, 0, -7) // 离厂交期。必填。客户交期-7天
+		deliveryDateFactory := deliveryDateFactoryLeave.AddDate(0, 0, -7)  // 工厂交期。非必填。离厂交期-7天
 		deliveryDateFactoryLeaveStr = deliveryDateFactoryLeave.Format("2006-01-02")
 		deliveryDateFactoryStr = deliveryDateFactory.Format("2006-01-02")
 	}

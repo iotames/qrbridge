@@ -57,20 +57,22 @@ func poSheetDataParseA5ygc(f *excelize.File, sheetName string, id int, info *PoI
 		item.PoNo = getCellTrimSpace(f, sheetName, "G", rowindex) // ok 客人没有PO的要求，直接取G列的合同号作为PO NO
 
 		// 离厂交期 客户交期 H列 15/01/2026
-		deliveryDateCustomerTxt := getCellTrimSpace(f, sheetName, "H", rowindex) // 获取客户交期。15/01/2026
-		deliveryDateCustomer, err := time.Parse("02/01/2006", deliveryDateCustomerTxt)
-		deliveryDateCustomerStr := ""
+		deliveryDateCustomerTxt := getCellTrimSpace(f, sheetName, "H", rowindex)       // 获取客户交期。15/01/2026
+		deliveryDateCustomer, err := time.Parse("02/01/2006", deliveryDateCustomerTxt) // 客户交期。必填。
+		// 字符串格式：2006-01-02。默认值为空字符串
+		deliveryDateCustomerStr := ""     // 客户交期。必填。
 		deliveryDateFactoryLeaveStr := "" // 离厂交期
 		deliveryDateFactoryStr := ""      // 工厂交期
 
 		if err == nil {
-			deliveryDateFactoryLeave := deliveryDateCustomer.AddDate(0, 0, -7)
-			deliveryDateFactory := deliveryDateFactoryLeave.AddDate(0, 0, 7)
-			deliveryDateFactoryLeaveStr = deliveryDateFactoryLeave.Format("2006-01-02")
-			deliveryDateFactoryStr = deliveryDateFactory.Format("2006-01-02")
-			deliveryDateCustomerStr = deliveryDateCustomer.Format("2006-01-02")
+			// deliveryDateFactoryLeave := deliveryDateCustomer.AddDate(0, 0, -7)          // 离厂交期。必填。客户交期-7天
+			deliveryDateFactoryLeave := deliveryDateCustomer                            // 离厂交期=客户交期
+			deliveryDateFactory := deliveryDateFactoryLeave.AddDate(0, 0, -7)           // 工厂交期。非必填。离厂交期-7天
+			deliveryDateCustomerStr = deliveryDateCustomer.Format("2006-01-02")         // 客户交期
+			deliveryDateFactoryLeaveStr = deliveryDateFactoryLeave.Format("2006-01-02") // 离厂交期
+			deliveryDateFactoryStr = deliveryDateFactory.Format("2006-01-02")           // 工厂交期
 		}
-
+		// 特殊处理，离厂交期和客户交期一样。
 		item.DeliveryDateCustomer = deliveryDateCustomerStr         // 客户交期。必填。
 		item.DeliveryDateFactoryLeave = deliveryDateFactoryLeaveStr // 离厂交期。必填。客户交期-7天
 		item.DeliveryDateFactory = deliveryDateFactoryStr           // 工厂交期。非必填。离厂交期-7天

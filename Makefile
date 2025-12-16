@@ -1,5 +1,5 @@
 CC=go
-APP_VERSION=v1.2.0
+APP_VERSION=v1.2.1
 # 中文乱码，在CFLAGS添加-fexec-charset=UTF-8选项
 
 # # For Windows:
@@ -23,7 +23,7 @@ else
 	GO_BUILD=CGO_ENABLED=0 go build -v
 	BUILD_TIME=$(shell date +%Y-%m-%d_%H:%M)
 	GO_BUILD_ARGS=-trimpath -ldflags "-X 'main.BuildTime=$(BUILD_TIME)' -X 'main.Version=$(APP_VERSION)' -X 'main.DbFlag=true' "
-	COPY=cp
+	COPY=cp -rf
 	DIRSEP=/
 	RM=rm -rf
 	MKDIR=mkdir -p

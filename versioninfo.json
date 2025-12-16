@@ -2,12 +2,12 @@
     "FixedFileInfo": {
         "FileVersion": {
             "Major": 1,
-            "Minor": 1,
+            "Minor": 2,
             "Patch": 1
         },
         "ProductVersion": {
             "Major": 1,
-            "Minor": 1,
+            "Minor": 2,
             "Patch": 1
         },
         "FileFlagsMask": "3f",
@@ -20,14 +20,14 @@
         "Comments": "",
         "CompanyName": "",
         "FileDescription": "PO转换工具",
-        "FileVersion": "v1.1.1",
+        "FileVersion": "v1.2.1",
         "InternalName": "",
         "LegalCopyright": "",
         "LegalTrademarks": "",
         "OriginalFilename": "",
         "PrivateBuild": "",
         "ProductName": "POTool",
-        "ProductVersion": "v1.1.1",
+        "ProductVersion": "v1.2.1",
         "SpecialBuild": ""
     },
     "VarFileInfo": {
