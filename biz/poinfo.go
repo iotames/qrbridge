@@ -12,15 +12,6 @@ type PoCustomer struct {
 	Remark string
 }
 
-var PoCustomers = []PoCustomer{
-	{"A89SP", "Rohnisch"},
-	{"A5YGC", "A5YGC"},
-	// {"A6WHM", "A6WHM"},
-	// {"B1ZTV", "B1ZTV"},
-	// {"AH8SW", "AH8SW"},
-	// {"A63AM", "A63AM"},
-}
-
 type PoInfo struct {
 	OrderItems []OrderItem
 }

@@ -23,10 +23,7 @@ func setHandler(svr *httpsvr.EasyServer) {
 	svr.AddHandler("POST", "/api/poimport", poimport)
 	svr.AddHandler("POST", "/api/potransform", potransform)
 	svr.AddHandler("POST", "/api/uploadfile", uploadfile)
-}
-
-func hello(ctx httpsvr.Context) {
-	ctx.Writer.Write(response.NewApiDataOk("hello api").Bytes())
+	svr.AddHandler("GET", "/api/customer/list", customerList)
 }
 
 func postJsonValue(ctx httpsvr.Context, v any) error {
@@ -51,4 +48,8 @@ func home(ctx httpsvr.Context) {
 	}
 	SetContentByTplFile("tpl/index.html", ctx.Writer, data)
 	// ctx.Writer.Write(response.NewApiDataOk("hello api").Bytes())
+}
+
+func hello(ctx httpsvr.Context) {
+	ctx.Writer.Write(response.NewApiDataOk("hello api").Bytes())
 }
