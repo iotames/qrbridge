@@ -7,8 +7,8 @@ import (
 )
 
 var PoCustomers = []biz.PoCustomer{
-	{"A89SP", "Rohnisch"},
-	{"A5YGC", "A5YGC"},
+	{Code: "A89SP", Remark: "Rohnisch"},
+	{Code: "A5YGC", Remark: "A5YGC"},
 	// {"A6WHM", "A6WHM"},
 	// {"B1ZTV", "B1ZTV"},
 	// {"AH8SW", "AH8SW"},

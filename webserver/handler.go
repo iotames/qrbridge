@@ -24,6 +24,7 @@ func setHandler(svr *httpsvr.EasyServer) {
 	svr.AddHandler("POST", "/api/potransform", potransform)
 	svr.AddHandler("POST", "/api/uploadfile", uploadfile)
 	svr.AddHandler("GET", "/api/customer/list", customerList)
+	svr.AddHandler("GET", "/api/amis-page-config", getAmisPageConfig)
 }
 
 func postJsonValue(ctx httpsvr.Context, v any) error {
@@ -44,9 +45,10 @@ func postJsonValue(ctx httpsvr.Context, v any) error {
 
 func home(ctx httpsvr.Context) {
 	data := map[string]interface{}{
-		"web_server_port": webServerPort,
+		"title": "客户PO导入",
+		// "web_server_port": webServerPort,
 	}
-	SetContentByTplFile("tpl/index.html", ctx.Writer, data)
+	SetContentByTplFile("tpl/amis.html", ctx.Writer, data)
 	// ctx.Writer.Write(response.NewApiDataOk("hello api").Bytes())
 }
 

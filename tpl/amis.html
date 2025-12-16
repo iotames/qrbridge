@@ -2,7 +2,7 @@
 <html lang="zh">
   <head>
     <meta charset="UTF-8" />
-    <title>文件上传</title>
+    <title><%{ .title }%></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta
       name="viewport"
@@ -36,33 +36,46 @@
       (function () {
         let amis = amisRequire('amis/embed');
         // 通过替换下面这个配置来生成不同页面
-        let amisJSON = {
-          type: 'page',
-          title: '客户PO文件格式转换',
-          body: {
-            type: 'form',
-            mode: 'horizontal',
-            api: '/api/potransform',
-            body: [
-              {
-                "label": "客户简称",
-                "type": "select",
-                "name": "inputtpl",
-                "source": "/api/customer/list"
-              },
-              {
-                "type": "input-file",
-                "name": "inputfile",
-                "label": "File",
-                "accept": ".xlsx",
-                "label": "上传.xlsx文件",
-                "maxSize": 10048576,
-                "receiver": "/api/uploadfile"
+        // let amisJSON = {};
+        // let amisScoped = amis.embed('#root', amisJSON);
+
+        // 从API获取amis配置
+        async function loadAmisConfig() {
+          try {
+            const response = await fetch('/api/amis-page-config');
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const result = await response.json(); // 先获取完整的响应
+            const amisJSON = result.data; // 然后从result中获取data字段
+            return amisJSON;
+          } catch (error) {
+            console.error('Failed to load amis config:', error);
+            // 返回一个错误页面配置
+            return {
+              type: 'page',
+              title: '配置加载失败',
+              body: {
+                type: 'tpl',
+                tpl: '页面配置加载失败，请刷新页面重试。错误信息：' + error.message
               }
-            ]
+            };
           }
-        };
-        let amisScoped = amis.embed('#root', amisJSON);
+        }
+        
+        // 初始化页面
+        async function initAmis() {
+          const amisJSON = await loadAmisConfig();
+          // 移除加载提示
+          const root = document.getElementById('root');
+          root.innerHTML = '';
+          // 渲染amis页面
+          amis.embed('#root', amisJSON);
+        }
+        
+        // 启动应用
+        initAmis();
+
       })();
     </script>
   </body>

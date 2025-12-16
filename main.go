@@ -38,7 +38,7 @@ func main() {
 		return
 	}
 
-	if IsPathExists("tpl/index.html") {
+	if IsPathExists("tpl/amis.html") {
 		go func() {
 			time.Sleep(1 * time.Second)
 			err := startBrowser()
