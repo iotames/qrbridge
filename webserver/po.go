@@ -2,59 +2,33 @@ package webserver
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/iotames/easyserver/httpsvr"
 	"github.com/iotames/easyserver/response"
+	"github.com/iotames/miniutils"
 )
-
-func poimportCheck(ctx httpsvr.Context) (inputtpl string, inputfile string, outputfile string, err error) {
-	var ok bool
-	// 解析JSON数据
-	var requestData map[string]string
-	err = postJsonValue(ctx, &requestData)
-	if err != nil {
-		ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())
-		return
-	}
-	// 获取inputtpl字段
-	inputtpl, ok = requestData["inputtpl"]
-	if !ok || inputtpl == "" {
-		// ctx.Writer.Write(response.NewApiDataFail("inputtpl字段错误", 400).Bytes())
-		err = fmt.Errorf("inputtpl字段错误")
-		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
-		return
-	}
-	// 获取inputfile字段
-	inputfile, ok = requestData["inputfile"]
-	if !ok || inputfile == "" {
-		err = fmt.Errorf("inputfile字段错误")
-		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
-		return
-	}
-	// 获取outputfile字段
-	outputfile, ok = requestData["outputfile"]
-	if !ok || outputfile == "" {
-		err = fmt.Errorf("outputfile字段错误")
-		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
-		return
-	}
-	return
-}
 
 // poimport 通过HTTP的API接口接收POST方法请求的JSON数据。包含：inputtpl, inputfile, outputfile三个字段。
 // 接口返回数据：
 //
 //	{"code":200,"msg":"success","data":{"inputfile": inputfile, "outputfile": outputfile}}
 func poimport(ctx httpsvr.Context) {
-	inputtpl, inputfile, outputfile, err := poimportCheck(ctx)
+	requestData, err := checkJsonField(ctx, "inputtpl", "inputfile", "outputfile")
 	if err != nil {
+		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
 		return
 	}
+	inputtpl := requestData["inputtpl"].(string)
+	inputfile := requestData["inputfile"].(string)
+	outputfile := requestData["outputfile"].(string)
+
 	// 打印inputfile字段
 	fmt.Printf("接收到的inputfile(%s); outputfile(%s)\n", inputfile, outputfile)
 	tpllist := poCustomers.GetCodeList()
@@ -69,40 +43,58 @@ func poimport(ctx httpsvr.Context) {
 		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
 		return
 	}
+	var tempInputfile string
+	if strings.HasPrefix(inputfile, "http") {
+		unixtime := time.Now().Unix()
+		saveFilename := fmt.Sprintf("%s-%d.xlsx", time.Now().Format(time.DateOnly), unixtime)
+
+		// 创建上传目录（如果不存在）
+		uploadDir := "runtime/upload"
+		if !IsPathExists(uploadDir) {
+			if err := os.MkdirAll(uploadDir, 0755); err != nil {
+				ctx.Writer.Write(response.NewApiDataServerError("创建上传目录失败：" + err.Error()).Bytes())
+				return
+			}
+		}
+		// 定义完整的临时文件路径
+		tempInputfile = filepath.Join(uploadDir, saveFilename)
+		err = miniutils.NewHttpRequest(inputfile).Download(tempInputfile)
+		if err != nil {
+			ctx.Writer.Write(response.NewApiDataServerError("下载文件失败：" + err.Error()).Bytes())
+			return
+		}
+		inputfile = tempInputfile
+	}
+
 	_, err = potransformfunc(inputtpl, inputfile, outputfile)
 	if err != nil {
 		ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())
 		return
 	}
+	if miniutils.IsPathExists(tempInputfile) {
+		fmt.Println("删除临时文件:", tempInputfile)
+		err = os.Remove(tempInputfile)
+		if err != nil {
+			fmt.Println("删除临时文件失败:", err)
+		} else {
+			fmt.Println("删除临时文件成功:", tempInputfile)
+		}
+	} else {
+		fmt.Println("tempInputfile", tempInputfile, "不存在")
+	}
+
 	ctx.Writer.Write(response.NewApiData(response.JsonObject{"inputfile": inputfile, "outputfile": outputfile}, "success", 200).Bytes())
 }
 
+// potransform 通过HTTP的API接口接收POST方法请求的JSON数据。包含：inputtpl, inputfile两个字段。
 func potransform(ctx httpsvr.Context) {
-	var ok bool
-	var err error
-	var inputtpl, inputfile string
-	// 解析JSON数据
-	var requestData map[string]string
-	err = postJsonValue(ctx, &requestData)
+	requestData, err := checkJsonField(ctx, "inputtpl", "inputfile")
 	if err != nil {
-		ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())
-		return
-	}
-	// 获取inputtpl字段
-	inputtpl, ok = requestData["inputtpl"]
-	if !ok || inputtpl == "" {
-		// ctx.Writer.Write(response.NewApiDataFail("inputtpl字段错误", 400).Bytes())
-		err = fmt.Errorf("inputtpl字段错误")
 		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
 		return
 	}
-	// 获取inputfile字段
-	inputfile, ok = requestData["inputfile"]
-	if !ok || inputfile == "" {
-		err = fmt.Errorf("inputfile字段错误")
-		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
-		return
-	}
+	inputtpl := requestData["inputtpl"].(string)
+	inputfile := requestData["inputfile"].(string)
 
 	// 获取outputfile字段
 	outputfileBase := filepath.Base(inputfile)
@@ -125,6 +117,7 @@ func potransform(ctx httpsvr.Context) {
 		ctx.Writer.Write(response.NewApiDataQueryArgsError(err.Error()).Bytes())
 		return
 	}
+	// miniutils.NewHttpRequest("https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png").Download("runtime/baidu.png")
 	_, err = potransformfunc(inputtpl, inputfile, outputfile)
 
 	if err != nil {

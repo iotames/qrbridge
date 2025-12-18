@@ -6,8 +6,11 @@ HTTP请求示例:
 
 ```json
 // 正常返回
-curl -X POST http://127.0.0.1:8080/api/poimport   -H "Content-Type: application/json"   -d '{"inputtpl":"A89SP","inputfile":"D:\\Users\\santic\\Downloads\\PO SS26 Main (1)(2).xlsx","outputfile":"poss26main.xlsx"}'
+curl -X POST http://127.0.0.1:8080/api/poimport -H "Content-Type: application/json" -d '{"inputtpl":"A89SP","inputfile":"D:\\Users\\santic\\Downloads\\PO SS26 Main (1)(2).xlsx","outputfile":"poss26main.xlsx"}'
 {"code":200,"msg":"success","data":{"inputfile":"D:\\Users\\santic\\Downloads\\PO SS26 Main (1)(2).xlsx","outputfile":"poss26main.xlsx"}}
+
+// curl -X POST http://127.0.0.1:8080/api/poimport -H "Content-Type: application/json" -d '{"inputtpl":"A89SP","inputfile":"https://s1.sendike.com/salesContract/1766020611PO SS26 Main (1)(2).xlsx","outputfile":"poss26main.xlsx"}'
+
 
 // 异常返回
 curl -X POST http://localhost:8080/api/poimport   -H "Content-Type: application/json"   -d '{"inputfile":"D:\\Users\\santic\\Downloads\\PO SS26 Main (1)(2).xlsx","outputfile":"poss26main.xlsx","inputtpl":"Rohnisch9"}'
