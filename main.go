@@ -20,7 +20,10 @@ var (
 )
 
 func main() {
-
+	if Debug {
+		debug()
+		return
+	}
 	if vsion {
 		fmt.Printf("QRBridge:%s, BuildTime:%s\n", Version, BuildTime)
 		fmt.Println("DbFlag", DbFlag)
@@ -38,10 +41,6 @@ func main() {
 	}
 	if DbFlag == "true" {
 		CheckDb()
-	}
-	if Debug {
-		debug()
-		return
 	}
 
 	if IsPathExists("tpl/amis.html") {

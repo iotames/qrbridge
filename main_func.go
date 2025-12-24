@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/iotames/qrbridge/biz"
@@ -109,13 +110,16 @@ func inputfileTransform() error {
 	if transf == nil {
 		return fmt.Errorf("找不到转换对应的转换函数")
 	}
+
 	filesplit := strings.Split(Inputfile, ".")
 	fileext := filesplit[len(filesplit)-1]
-	outputfile := strings.Replace(Inputfile, "."+fileext, "-output."+fileext, 1)
+	outputfile := strings.Replace(Inputfile, "."+fileext, "-Done."+fileext, 1)
 	fmt.Println("输入文件：", Inputfile, "输出文件：", outputfile)
 	_, err = transf(Inputtpl, Inputfile, outputfile)
 	if err != nil {
 		fmt.Println("转换失败:", err)
 	}
+	fp, _ := filepath.Abs(Inputfile)
+	exec.Command("cmd", "/c", "start", filepath.Dir(fp)).Start()
 	return err
 }
