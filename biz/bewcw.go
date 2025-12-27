@@ -9,11 +9,10 @@ import (
 
 	// go get github.com/unidoc/unipdf/v4
 	// "github.com/ledongthuc/pdf"
-	"github.com/iotames/qrbridge/service"
 	"github.com/xuri/excelize/v2"
 )
 
-func PoBewcwTransform(inputtpl, inputfile, outputfile string) (info PoInfo, err error) {
+func PoBewcwTransform(inputfile, outputfile string) (info PoInfo, err error) {
 	// pdf.DebugOn = true
 	// var content string
 	// content, err = readPdf(inputfile) // Read local pdf file
@@ -22,25 +21,7 @@ func PoBewcwTransform(inputtpl, inputfile, outputfile string) (info PoInfo, err 
 	// defer ff.Close()
 	// _, err = io.WriteString(ff, content)
 	// fmt.Println(content)
-
-	f, err := service.NewTableFile(inputfile).OpenExcel()
-	if err != nil {
-		return PoInfo{}, fmt.Errorf("打开Excel文件失败: %w", err)
-	}
-	sheets := f.GetSheetList()
-	// for i, sheet := range sheets {
-	PoSheetDataParseBewcw(f, sheets[0], &info)
-	// }
-
-	err = f.Close()
-	if err != nil {
-		return PoInfo{}, fmt.Errorf("关闭%s文件失败: %w", inputfile, err)
-	}
-	err = poOutputExcel(outputfile, info)
-	if err != nil {
-		return PoInfo{}, fmt.Errorf("输出Excel文件失败: %w", err)
-	}
-	return info, err
+	return potransform(inputfile, outputfile, 0, PoSheetDataParseBewcw)
 }
 
 // 从Excel的每个sheet页面解析数据

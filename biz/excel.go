@@ -4,8 +4,40 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/iotames/qrbridge/service"
 	"github.com/xuri/excelize/v2"
 )
+
+func potransform(inputfile, outputfile string, sheetIndex int, transfunc func(f *excelize.File, sheetName string, info *PoInfo) error) (info PoInfo, err error) {
+	f, err := service.NewTableFile(inputfile).OpenExcel()
+	if err != nil {
+		return PoInfo{}, fmt.Errorf("打开Excel文件失败: %w", err)
+	}
+	sheets := f.GetSheetList()
+	sheetLen := len(sheets)
+	if sheetLen == 0 {
+		return PoInfo{}, fmt.Errorf("没有sheet页")
+	}
+	if sheetIndex > sheetLen-1 {
+		return PoInfo{}, fmt.Errorf("sheet页索引超限(now%d/max%d)", sheetIndex, sheetLen-1)
+	}
+	if sheetIndex < 0 {
+		for _, sheet := range sheets {
+			transfunc(f, sheet, &info)
+		}
+	} else {
+		transfunc(f, sheets[0], &info)
+	}
+	err = f.Close()
+	if err != nil {
+		return PoInfo{}, fmt.Errorf("关闭%s文件失败: %w", inputfile, err)
+	}
+	err = poOutputExcel(outputfile, info)
+	if err != nil {
+		return PoInfo{}, fmt.Errorf("输出Excel文件失败: %w", err)
+	}
+	return info, err
+}
 
 func getCellTrimSpace(f *excelize.File, sheetName string, col string, rowIndex uint) string {
 	cell := fmt.Sprintf("%s%d", col, rowIndex)

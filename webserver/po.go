@@ -66,7 +66,7 @@ func poimport(ctx httpsvr.Context) {
 		inputfile = tempInputfile
 	}
 
-	_, err = potransformfunc(inputtpl, inputfile, outputfile)
+	_, err = potransformfunc(inputfile, outputfile)
 	if err != nil {
 		ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())
 		return
@@ -118,7 +118,7 @@ func potransform(ctx httpsvr.Context) {
 		return
 	}
 	// miniutils.NewHttpRequest("https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png").Download("runtime/baidu.png")
-	_, err = potransformfunc(inputtpl, inputfile, outputfile)
+	_, err = potransformfunc(inputfile, outputfile)
 
 	if err != nil {
 		ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())

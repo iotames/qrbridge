@@ -5,34 +5,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/iotames/qrbridge/service"
 	"github.com/xuri/excelize/v2"
 )
 
-func PoA5ygcTransform(inputtpl, inputfile, outputfile string) (info PoInfo, err error) {
-	f, err := service.NewTableFile(inputfile).OpenExcel()
-	if err != nil {
-		return PoInfo{}, fmt.Errorf("打开Excel文件失败: %w", err)
-	}
-
-	sheets := f.GetSheetList()
-	// for i, sheet := range sheets {
-	poSheetDataParseA5ygc(f, sheets[0], 0, &info)
-	// }
-
-	err = f.Close()
-	if err != nil {
-		return PoInfo{}, fmt.Errorf("关闭%s文件失败: %w", inputfile, err)
-	}
-	err = poOutputExcel(outputfile, info)
-	if err != nil {
-		return PoInfo{}, fmt.Errorf("输出Excel文件失败: %w", err)
-	}
-	return info, err
+func PoA5ygcTransform(inputfile, outputfile string) (info PoInfo, err error) {
+	return potransform(inputfile, outputfile, 0, poSheetDataParseA5ygc)
 }
 
 // 从Excel的每个sheet页面解析数据
-func poSheetDataParseA5ygc(f *excelize.File, sheetName string, id int, info *PoInfo) error {
+func poSheetDataParseA5ygc(f *excelize.File, sheetName string, info *PoInfo) error {
 	ids := getOkOrderItemRowIndexs(f, sheetName, "E", 2, 3, []string{"SKU"})
 	sizeMap := map[string]string{
 		"00": "XXS",
@@ -82,7 +63,7 @@ func poSheetDataParseA5ygc(f *excelize.File, sheetName string, id int, info *PoI
 		fmt.Sscanf(qtyStr, "%d", &item.Qty)                              // ok 转换为整型。订单数量。必填
 		item.DestCountry = getCellTrimSpace(f, sheetName, "A", rowindex) // ok 目的国。必填。
 		info.OrderItems = append(info.OrderItems, item)
-		fmt.Printf("----sheet(%d-%s)---rowindex(%d)---orderItem(%+v)------\n", id, sheetName, rowindex, item)
+		fmt.Printf("----sheet(%s)---rowindex(%d)---orderItem(%+v)------\n", sheetName, rowindex, item)
 	}
 	return nil
 }

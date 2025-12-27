@@ -115,7 +115,7 @@ func inputfileTransform() error {
 	fileext := filesplit[len(filesplit)-1]
 	outputfile := strings.Replace(Inputfile, "."+fileext, "-Done."+fileext, 1)
 	fmt.Println("输入文件：", Inputfile, "输出文件：", outputfile)
-	_, err = transf(Inputtpl, Inputfile, outputfile)
+	_, err = transf(Inputfile, outputfile)
 	if err != nil {
 		fmt.Println("转换失败:", err)
 	}

@@ -13,7 +13,7 @@ var poCommonTplTitleRow = []interface{}{"客户款号*", "颜色*", "英文颜�
 type PoCustomer struct {
 	Code            string
 	Remark          string
-	poTransformFunc func(inputtpl, inputfile, outputfile string) (info PoInfo, err error)
+	poTransformFunc func(inputfile, outputfile string) (info PoInfo, err error)
 }
 
 type PoInfo struct {
@@ -42,7 +42,7 @@ var PoCustomerList = PoCustomers{
 	{Code: "A89SP", Remark: "Rohnisch", poTransformFunc: PoRohnischTransform},
 	{Code: "A5YGC", Remark: "A5YGC", poTransformFunc: PoA5ygcTransform},
 	{Code: "BEWCW", Remark: "Icaniwill|ICIW", poTransformFunc: PoBewcwTransform},
-	// {"A6WHM", "A6WHM"},
+	{Code: "A6WHM", Remark: "HEMA", poTransformFunc: PoA6wHmTransform},
 	// {"B1ZTV", "B1ZTV"},
 	// {"AH8SW", "AH8SW"},
 	// {"A63AM", "A63AM"},
@@ -56,7 +56,9 @@ func (pc PoCustomers) GetCodeList() []string {
 	return list
 }
 
-func (pc PoCustomers) GetTransformFunc(code string) func(inputtpl, inputfile, outputfile string) (info PoInfo, err error) {
+// GetTransformFunc 根据code获取转换函数
+// code为inputtpl转换模板名称，也是客户简称
+func (pc PoCustomers) GetTransformFunc(code string) func(inputfile, outputfile string) (info PoInfo, err error) {
 	for _, v := range pc {
 		if v.Code == code {
 			return v.poTransformFunc
