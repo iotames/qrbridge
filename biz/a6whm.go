@@ -1,12 +1,12 @@
 package biz
 
 import (
+	// "archive/zip"
+	// "encoding/xml"
 	// "bytes"
 	"fmt"
 	"strconv"
 	"strings"
-
-	// "time"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -24,12 +24,19 @@ func PoSheetDataParseA6wHm(f *excelize.File, sheetName string, info *PoInfo) err
 
 	var rows [][]string
 	var err error
-	var poInt int
+	// var poInt int
 	var rowindex uint
+	var destCountry string // 目的国
 	// var deliveryDateCustomer time.Time
 	deliveryDateCustomerStr := ""     // 客户交期
 	deliveryDateFactoryLeaveStr := "" // 离厂交期
 	deliveryDateFactoryStr := ""      // 工厂交期
+
+	destCountryText := getCellTrimSpace(f, sheetName, "B", 14)
+	destCountrySplit := strings.Split(destCountryText, "&")
+	if len(destCountrySplit) > 0 {
+		destCountry = destCountrySplit[0]
+	}
 
 	rows, err = f.GetRows(sheetName)
 	if err != nil {
@@ -108,14 +115,14 @@ func PoSheetDataParseA6wHm(f *excelize.File, sheetName string, info *PoInfo) err
 		// for coli, celval := range row {}
 		// TODO "目的港"
 		item := OrderItem{}
-		item.PoNo = fmt.Sprintf("PO%d", poInt)
+		// item.PoNo = fmt.Sprintf("PO%d", poInt)
 		item.StyleNo = fmt.Sprintf("%d", orderId) // 客户款号
 		item.Qty = qty                            // 订单数量
 		item.Desc = desc
 		item.Size = size       // 尺码
 		item.ColorEn = colorEn // 英文颜色
 
-		item.DestCountry = "xxxx"                                   // 目的国
+		item.DestCountry = destCountry                              // 目的国
 		item.DeliveryDateCustomer = deliveryDateCustomerStr         // 客户交期。必填。
 		item.DeliveryDateFactoryLeave = deliveryDateFactoryLeaveStr // 离厂交期。必填。客户交期-7天
 		item.DeliveryDateFactory = deliveryDateFactoryStr           // 工厂交期。非必填。离厂交期-5天

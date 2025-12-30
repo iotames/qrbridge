@@ -55,7 +55,7 @@ qrbridge.exe
 假设 `ENCRYPT_ADD` 参数值为 `5006`。则 `调试二维码参数` 的路由地址为：`/codetest5006`
 通过调试地址，生成二维码参数，可以验证加密结果是否正确。
 
-```
+```bash
 http://127.0.0.1:8080/codetest5006?m=module_name&mid=128
 
 # 返回结果：{"code":200,"msg":"code=bT1tb2R1bGVfbmFtZSZtaWQ9MjAwNTA3MDg","data":{}}
