@@ -35,7 +35,7 @@ func PoSheetDataParseA6wHm(f *excelize.File, sheetName string, info *PoInfo) err
 	destCountryText := getCellTrimSpace(f, sheetName, "B", 14)
 	destCountrySplit := strings.Split(destCountryText, "&")
 	if len(destCountrySplit) > 0 {
-		destCountry = destCountrySplit[0]
+		destCountry = strings.TrimSpace(destCountrySplit[0])
 	}
 
 	rows, err = f.GetRows(sheetName)
