@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/iotames/qrbridge/biz"
+
 	// "github.com/iotames/qrbridge/db"
 	// "github.com/iotames/qrbridge/hotswap"
 	"github.com/iotames/qrbridge/service"
@@ -24,9 +25,8 @@ func debug() {
 		if err != nil {
 			panic(fmt.Errorf("打开Excel文件失败: %w", err))
 		}
-		sheets := f.GetSheetList()
 		info := biz.PoInfo{}
-		err = biz.PoSheetDataParseBewcw(f, sheets[0], &info)
+		err = biz.PoSheetDataParseBewcw(f, 0, &info)
 		if err != nil {
 			panic(fmt.Errorf("解析Excel文件失败: %w", err))
 		}

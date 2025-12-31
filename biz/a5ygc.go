@@ -13,7 +13,8 @@ func PoA5ygcTransform(inputfile, outputfile string) (info PoInfo, err error) {
 }
 
 // 从Excel的每个sheet页面解析数据
-func poSheetDataParseA5ygc(f *excelize.File, sheetName string, info *PoInfo) error {
+func poSheetDataParseA5ygc(f *excelize.File, sheetIndex int, info *PoInfo) error {
+	sheetName := f.GetSheetName(sheetIndex)
 	ids := getOkOrderItemRowIndexs(f, sheetName, "E", 2, 3, []string{"SKU"})
 	sizeMap := map[string]string{
 		"00": "XXS",
@@ -59,7 +60,8 @@ func poSheetDataParseA5ygc(f *excelize.File, sheetName string, info *PoInfo) err
 		item.DeliveryDateFactory = deliveryDateFactoryStr           // 工厂交期。非必填。离厂交期-7天
 
 		// TODO 1、取F列数据 2、要求将同SKU(E列)合并数量，出货时再根据客户要求手动拆分
-		qtyStr := getCellTrimSpace(f, sheetName, "F", rowindex)          // ok 原始数据。订单数量。必填
+		qtyStr := getCellTrimSpace(f, sheetName, "F", rowindex) // ok 原始数据。订单数量。必填
+		qtyStr = GetDigits(qtyStr)
 		fmt.Sscanf(qtyStr, "%d", &item.Qty)                              // ok 转换为整型。订单数量。必填
 		item.DestCountry = getCellTrimSpace(f, sheetName, "A", rowindex) // ok 目的国。必填。
 		info.OrderItems = append(info.OrderItems, item)

@@ -1,5 +1,9 @@
 package biz
 
+import (
+	"time"
+)
+
 var poCommonTplTitleRow = []interface{}{"客户款号*", "颜色*", "英文颜色*", "色号", "PO NO*", "尺码*", "工厂交期", "离厂交期*", "客户交期*", "订单数量*", "目的国*", "目的港"}
 
 // A89SP 谢小玉 Rohnisch
@@ -17,7 +21,9 @@ type PoCustomer struct {
 }
 
 type PoInfo struct {
-	OrderItems []OrderItem
+	PoNo, DestCountry    string
+	DeliveryDateCustomer time.Time
+	OrderItems           []OrderItem
 }
 
 type OrderItem struct {
@@ -42,8 +48,8 @@ var PoCustomerList = PoCustomers{
 	{Code: "A89SP", Remark: "Rohnisch", poTransformFunc: PoRohnischTransform},
 	{Code: "A5YGC", Remark: "A5YGC", poTransformFunc: PoA5ygcTransform},
 	{Code: "BEWCW", Remark: "Icaniwill|ICIW", poTransformFunc: PoBewcwTransform},
-	{Code: "A6WHM", Remark: "HEMA", poTransformFunc: PoA6wHmTransform},
-	// {"B1ZTV", "B1ZTV"},
+	{Code: "A6WHM", Remark: "HEMA", poTransformFunc: PoA6whmTransform},
+	{Code: "B1ZTV", Remark: "TEVEO", poTransformFunc: PoB1ztvTransform},
 	// {"AH8SW", "AH8SW"},
 	// {"A63AM", "A63AM"},
 }

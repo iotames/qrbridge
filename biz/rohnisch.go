@@ -13,12 +13,13 @@ func PoRohnischTransform(inputfile, outputfile string) (info PoInfo, err error) 
 }
 
 // 从Excel的每个sheet页面解析数据
-func poSheetDataParseRohnisch(f *excelize.File, sheetName string, info *PoInfo) error {
+func poSheetDataParseRohnisch(f *excelize.File, sheetIndex int, info *PoInfo) error {
 	// 第57行为标题行
 	// 客户款号C58
 	// 款式标题G58 Kay High Waist Tights  Black/Black, XS,  0101
 	// noTitle, _ := f.GetCellValue(sheetName, "C57")
 	// no, _ := f.GetCellValue(sheetName, "C58")
+	sheetName := f.GetSheetName(sheetIndex)
 	poNo := getCellTrimSpace(f, sheetName, "T", 10)                    // 获取PO号
 	deliveryDateCustomerTxt := getCellTrimSpace(f, sheetName, "I", 50) // 获取客户交期。I50 25-09-15
 	deliveryDateCustomerStr := "20" + deliveryDateCustomerTxt          // 客户交期
@@ -44,8 +45,7 @@ func poSheetDataParseRohnisch(f *excelize.File, sheetName string, info *PoInfo) 
 		item.DeliveryDateFactory = deliveryDateFactoryStr           // 工厂交期。非必填。离厂交期-7天
 		// 1 050
 		qtyStr := getCellTrimSpace(f, sheetName, "AA", rowindex) // 原始数据。订单数量。必填
-		qtyStr = RemoveNonDigits(qtyStr)
-
+		qtyStr = GetDigits(qtyStr)
 		fmt.Sscanf(qtyStr, "%d", &item.Qty) // 转换为整型。订单数量。必填
 		item.DestCountry = destCountry
 		info.OrderItems = append(info.OrderItems, item)

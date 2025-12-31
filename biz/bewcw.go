@@ -25,7 +25,7 @@ func PoBewcwTransform(inputfile, outputfile string) (info PoInfo, err error) {
 }
 
 // 从Excel的每个sheet页面解析数据
-func PoSheetDataParseBewcw(f *excelize.File, sheetName string, info *PoInfo) error {
+func PoSheetDataParseBewcw(f *excelize.File, sheetIndex int, info *PoInfo) error {
 	var rows [][]string
 	var err error
 	var poInt int
@@ -35,6 +35,7 @@ func PoSheetDataParseBewcw(f *excelize.File, sheetName string, info *PoInfo) err
 	deliveryDateFactoryLeaveStr := "" // 离厂交期
 	deliveryDateFactoryStr := ""      // 工厂交期
 
+	sheetName := f.GetSheetName(sheetIndex)
 	rows, err = f.GetRows(sheetName)
 	if err != nil {
 		return fmt.Errorf("获取%s总行数失败: %w", sheetName, err)
@@ -107,7 +108,8 @@ func PoSheetDataParseBewcw(f *excelize.File, sheetName string, info *PoInfo) err
 
 		// 提取订单数量
 		qtytext := getCellTrimSpace(f, sheetName, "I", rowindex)
-		qty, err := strconv.Atoi(strings.Replace(qtytext, ",", "", 1))
+		qtystr := GetDigits(qtytext)
+		qty, err := strconv.Atoi(qtystr)
 		if err != nil {
 			continue
 		}

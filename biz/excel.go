@@ -8,7 +8,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func potransform(inputfile, outputfile string, sheetIndex int, transfunc func(f *excelize.File, sheetName string, info *PoInfo) error) (info PoInfo, err error) {
+func potransform(inputfile, outputfile string, sheetIndex int, transfunc func(f *excelize.File, sheetIndex int, info *PoInfo) error) (info PoInfo, err error) {
 	f, err := service.NewTableFile(inputfile).OpenExcel()
 	if err != nil {
 		return PoInfo{}, fmt.Errorf("打开Excel文件失败: %w", err)
@@ -22,11 +22,11 @@ func potransform(inputfile, outputfile string, sheetIndex int, transfunc func(f 
 		return PoInfo{}, fmt.Errorf("sheet页索引超限(now%d/max%d)", sheetIndex, sheetLen-1)
 	}
 	if sheetIndex < 0 {
-		for _, sheet := range sheets {
-			transfunc(f, sheet, &info)
+		for si, _ := range sheets {
+			transfunc(f, si, &info)
 		}
 	} else {
-		transfunc(f, sheets[0], &info)
+		transfunc(f, sheetIndex, &info)
 	}
 	err = f.Close()
 	if err != nil {
