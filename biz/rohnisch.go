@@ -42,8 +42,11 @@ func poSheetDataParseRohnisch(f *excelize.File, sheetName string, info *PoInfo) 
 		item.DeliveryDateCustomer = deliveryDateCustomerStr         // 客户交期。必填。
 		item.DeliveryDateFactoryLeave = deliveryDateFactoryLeaveStr // 离厂交期。必填。客户交期-7天
 		item.DeliveryDateFactory = deliveryDateFactoryStr           // 工厂交期。非必填。离厂交期-7天
-		qtyStr := getCellTrimSpace(f, sheetName, "AA", rowindex)    // 原始数据。订单数量。必填
-		fmt.Sscanf(qtyStr, "%d", &item.Qty)                         // 转换为整型。订单数量。必填
+		// 1 050
+		qtyStr := getCellTrimSpace(f, sheetName, "AA", rowindex) // 原始数据。订单数量。必填
+		qtyStr = RemoveNonDigits(qtyStr)
+
+		fmt.Sscanf(qtyStr, "%d", &item.Qty) // 转换为整型。订单数量。必填
 		item.DestCountry = destCountry
 		info.OrderItems = append(info.OrderItems, item)
 		fmt.Printf("----sheet(%s)---rowindex(%d)---orderItem(%+v)------\n", sheetName, rowindex, item)
