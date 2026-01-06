@@ -22,7 +22,7 @@ func potransform(inputfile, outputfile string, sheetIndex int, transfunc func(f 
 		return PoInfo{}, fmt.Errorf("sheet页索引超限(now%d/max%d)", sheetIndex, sheetLen-1)
 	}
 	if sheetIndex < 0 {
-		for si, _ := range sheets {
+		for si := range sheets {
 			transfunc(f, si, &info)
 		}
 	} else {
