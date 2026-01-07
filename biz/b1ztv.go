@@ -42,7 +42,7 @@ func PoSheetDataParseB1ztv(f *excelize.File, sheetIndex int, info *PoInfo) error
 
 		for _, order := range orderSplit {
 			if strings.Contains(order, "Order Number:") {
-				// 客户款号
+				// 客户PO
 				info.PoNo = strings.TrimSpace(strings.Replace(order, "Order Number:", "", 1))
 			}
 			if strings.Contains(order, "Shipment Date:") {

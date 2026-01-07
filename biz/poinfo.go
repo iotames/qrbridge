@@ -48,7 +48,7 @@ var PoCustomerList = PoCustomers{
 	{Code: "BEWCW", Remark: "Icaniwill|ICIW", poTransformFunc: PoBewcwTransform},
 	{Code: "A6WHM", Remark: "HEMA", poTransformFunc: PoA6whmTransform},
 	{Code: "B1ZTV", Remark: "TEVEO", poTransformFunc: PoB1ztvTransform},
-	// {"AH8SW", "AH8SW"},
+	{Code: "AH8SW", Remark: "ALPHA", poTransformFunc: PoAh8swTransform},
 	// {"A63AM", "A63AM"},
 }
 
