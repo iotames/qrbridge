@@ -36,9 +36,15 @@ func PoSheetDataParseA6whm(f *excelize.File, sheetIndex int, info *PoInfo) error
 	if sheetIndex == 0 {
 		// 目的国
 		info.DestCountry = getCellTrimSpace(f, sheetName, "E", 15) // THE NETHERLANDS
-		info.PoNo = getCellTrimSpace(f, sheetName, "J", 11)
-		deliveryDateCustomerTxt := getCellTrimSpace(f, sheetName, "M", 11)
+		ponoStr := getCellTrimSpace(f, sheetName, "J", 11)
+		_, err := strconv.Atoi(ponoStr)
+		// PO NO 无法转换成整数，则不保存。
+		if err == nil {
+			info.PoNo = ponoStr
+		}
 		// 客户交期 日.月.年
+		deliveryDateCustomerTxt := getCellTrimSpace(f, sheetName, "M", 11)
+
 		info.DeliveryDateCustomer, _ = time.Parse("02.01.2006", deliveryDateCustomerTxt)
 	}
 
