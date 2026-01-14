@@ -30,10 +30,11 @@ func PoSheetDataParseAh8sw(f *excelize.File, sheetIndex int, info *PoInfo) error
 	if sheetIndex == 0 {
 		// 2025/10/30  K7
 		deliveryDateCustomerText := getCellTrimSpace(f, sheetName, "K", 7)
-		info.DeliveryDateCustomer, err = time.Parse("2006/01/02", deliveryDateCustomerText) // 客户交期
-		// TODO --deliveryDateCustomerText(30-Oct-25)--
+		// 客户交期
+		info.DeliveryDateCustomer, err = time.Parse("2006/01/02", deliveryDateCustomerText)
 		if err != nil {
-			info.DeliveryDateCustomer, _ = time.Parse("2006/01/02", deliveryDateCustomerText) // 客户交期
+			// "02-Jan-06"对应：日-月缩写-年（2位）
+			info.DeliveryDateCustomer, _ = time.Parse("02-Jan-06", deliveryDateCustomerText)
 		}
 
 		info.PoNo = getCellTrimSpace(f, sheetName, "B", 5) // 客户PO B5 == M10

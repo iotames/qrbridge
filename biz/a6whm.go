@@ -26,7 +26,7 @@ func PoSheetDataParseA6whm(f *excelize.File, sheetIndex int, info *PoInfo) error
 	var rows [][]string
 	var err error
 	// var poInt int
-	var rowindex uint
+	// var rowindex uint
 
 	deliveryDateCustomerStr := ""     // 客户交期
 	deliveryDateFactoryLeaveStr := "" // 离厂交期
@@ -35,7 +35,8 @@ func PoSheetDataParseA6whm(f *excelize.File, sheetIndex int, info *PoInfo) error
 
 	if sheetIndex == 0 {
 		// 目的国
-		info.DestCountry = getCellTrimSpace(f, sheetName, "E", 15) // THE NETHERLANDS
+		info.DestCountry = "Netherland" // getCellTrimSpace(f, sheetName, "E", 15) // THE NETHERLANDS
+		info.DestPortName = "阿姆斯特丹"
 		ponoStr := getCellTrimSpace(f, sheetName, "J", 11)
 		_, err := strconv.Atoi(ponoStr)
 		// PO NO 无法转换成整数，则不保存。
@@ -65,13 +66,13 @@ func PoSheetDataParseA6whm(f *excelize.File, sheetIndex int, info *PoInfo) error
 	if err != nil {
 		return fmt.Errorf("获取%s总行数失败: %w", sheetName, err)
 	}
-	for i, row := range rows {
+	for _, row := range rows {
 		// 当前行没有任何数据。跳过。
 		if len(row) == 0 {
 			continue
 		}
 		// 定义当前行号
-		rowindex = uint(i + 1)
+		// rowindex = uint(i + 1)
 		// 获取当前行的第一列数据
 		rowA := strings.TrimSpace(row[0])
 
@@ -81,33 +82,56 @@ func PoSheetDataParseA6whm(f *excelize.File, sheetIndex int, info *PoInfo) error
 		if err != nil {
 			continue
 		}
-		if orderId < 30000000 {
+		if orderId < 1000000 {
 			continue
 		}
-		// fmt.Printf("-----PoSheetDataParseA6whm--row(%+v)---\n", row)
-
-		// 商品标题或者详情 在D列或B列
-		desc := getCellTrimSpace(f, sheetName, "D", rowindex)
-		colorEn, size := getA6whmColorSizeByDesc(desc)
-		if colorEn == "" || size == "" {
-			desc = getCellTrimSpace(f, sheetName, "B", rowindex)
-			colorEn, size = getA6whmColorSizeByDesc(desc)
+		// for coli, celval := range row {
+		// 	fmt.Printf("---parse-each-row-col--coli(%d)-----celval(%s)-------\n", coli, celval)
+		// }
+		// fmt.Printf("-----PoSheetDataParseA6whm----parse-each-row--row(%+v)---\n", row)
+		tidyrow := []string{} // len = 6
+		for _, celval := range row {
+			tidycell := strings.TrimSpace(celval)
+			if tidycell != "" {
+				tidyrow = append(tidyrow, tidycell)
+			}
 		}
-
-		// 提取订单数量 在C列或H列
-		// 一定要先检查C列，没有则取H列。否则可能直接取到H列的总金额。
-		qtytext := getCellTrimSpace(f, sheetName, "C", rowindex)
-		if qtytext == "" || qtytext == rowA {
-			qtytext = getCellTrimSpace(f, sheetName, "H", rowindex)
+		if len(tidyrow) < 4 {
+			continue
 		}
+		// 取出完整的商品标题或者描述
+
+		// 情况1：商品描述只占1个单元格。直接取出。
+		desc := tidyrow[1]
+		qtytext := tidyrow[2]
 		qtystr := GetDigits(qtytext)
 		qty, err := strconv.Atoi(qtystr)
 		if err != nil {
+			// 情况2：商品描述占2个单元格
+			qtytext = tidyrow[3]
+			qtystr = GetDigits(qtytext)
+			qty, err = strconv.Atoi(qtystr)
+			desc1 := tidyrow[1]
+			// A. 先对第1个单元格的字符串进行换行符分隔。
+			descSplit := strings.Split(desc1, "\n")
+			addStr := ""
+
+			if len(descSplit) > 1 {
+				addStr = descSplit[1]
+			}
+			desc2 := tidyrow[2]
+			// B. 如果分隔成功，取出两部分。分隔的第1部分和第2个单元格的商品描述拼接。分隔的第2部分拼接到末尾。
+			// B. 如果分隔失败，则效果等同把两个单元格直接拼接。
+			desc = descSplit[0] + desc2 + addStr
+		}
+		// 在完整的商品标题或者描述中，通过逗号(,)分隔符，取出颜色和尺码。
+		colorEn, size := getA6whmColorSizeByDesc(desc)
+
+		// fmt.Printf("-----PoSheetDataParseA6whm--each-row--tidyrow(%+v)-qtytext(%s)-qtystr(%s)---\n", tidyrow, qtytext, qtystr)
+
+		if err != nil {
 			continue
 		}
-
-		// for coli, celval := range row {}
-		// TODO "目的港"
 		item := OrderItem{}
 		item.PoNo = info.PoNo
 		item.StyleNo = fmt.Sprintf("%d", orderId) // 客户款号
@@ -116,7 +140,8 @@ func PoSheetDataParseA6whm(f *excelize.File, sheetIndex int, info *PoInfo) error
 		item.Size = size       // 尺码
 		item.ColorEn = colorEn // 英文颜色
 
-		item.DestCountry = info.DestCountry                         // 目的国
+		item.DestCountry = info.DestCountry // 目的国
+		item.DestPortName = info.DestPortName
 		item.DeliveryDateCustomer = deliveryDateCustomerStr         // 客户交期。必填。
 		item.DeliveryDateFactoryLeave = deliveryDateFactoryLeaveStr // 离厂交期。必填。
 		item.DeliveryDateFactory = deliveryDateFactoryStr           // 工厂交期。非必填。离厂交期-7天
