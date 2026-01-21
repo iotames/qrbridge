@@ -9,12 +9,12 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func PoAh8swTransform(inputfile, outputfile string) (info PoInfo, err error) {
-	return potransform(inputfile, outputfile, 0, PoSheetDataParseAh8sw)
+func PoA63amTransform(inputfile, outputfile string) (info PoInfo, err error) {
+	return potransform(inputfile, outputfile, 1, PoSheetDataParseA63am)
 }
 
 // 从Excel的单个sheet页面解析数据
-func PoSheetDataParseAh8sw(f *excelize.File, sheetIndex int, info *PoInfo) error {
+func PoSheetDataParseA63am(f *excelize.File, sheetIndex int, info *PoInfo) error {
 
 	var rows [][]string
 	var err error
@@ -25,29 +25,33 @@ func PoSheetDataParseAh8sw(f *excelize.File, sheetIndex int, info *PoInfo) error
 	deliveryDateFactoryLeaveStr := "" // 离厂交期
 	deliveryDateFactoryStr := ""      // 工厂交期
 	sheetName := f.GetSheetName(sheetIndex)
-	// 备注： PO 未体现色号，工厂交期，目的国，目的港
 
-	if sheetIndex == 0 {
-		// 2025/10/30  K7
-		deliveryDateCustomerText := getCellTrimSpace(f, sheetName, "K", 7)
+	if sheetName != "Summary" {
+		// 目的国 取C6最后一个","右侧的英文
+		dCountryText := getCellTrimSpace(f, sheetName, "C", 6)
+		dCountryTextSplit := strings.Split(dCountryText, ",")
+		info.DestCountry = strings.TrimSpace(dCountryTextSplit[len(dCountryTextSplit)-1])
+
+		// 2025/12/21 or 12-21-25 D1
+		deliveryDateCustomerText := getCellTrimSpace(f, sheetName, "D", 1)
 		// 客户交期
 		info.DeliveryDateCustomer, err = time.Parse("2006/01/02", deliveryDateCustomerText)
 		if err != nil {
-			// "02-Jan-06"对应：日-月缩写-年（2位）
-			info.DeliveryDateCustomer, _ = time.Parse("02-Jan-06", deliveryDateCustomerText)
+			// 12-21-25   "01-02-06"对应：月-日-缩写年（2位）
+			info.DeliveryDateCustomer, _ = time.Parse("01-02-06", deliveryDateCustomerText)
 		}
 
-		info.PoNo = getCellTrimSpace(f, sheetName, "B", 5) // 客户PO B5 == M10
+		info.PoNo = sheetName
 		fmt.Printf("----PoNo(%s)----deliveryDateCustomerText(%s)--deliveryDateCustomerStr(%s)---\n", info.PoNo, deliveryDateCustomerText, info.DeliveryDateCustomer)
 	}
-	fmt.Printf("------PoSheetDataParseAh8sw-----info.DestCountry(%+v)--info.DestPortName(%+v)-----\n", info.DestCountry, info.DestPortName)
+	fmt.Printf("------PoSheetDataParseA63am-----info.DestCountry(%+v)--info.DestPortName(%+v)-----\n", info.DestCountry, info.DestPortName)
 
 	if !info.DeliveryDateCustomer.IsZero() {
 		// 客户交期
 		deliveryDateCustomerStr = info.DeliveryDateCustomer.Format("2006-01-02")
 
 		// 离厂交期
-		deliveryDateFactoryLeave := info.DeliveryDateCustomer // 离厂交期=客户交期
+		deliveryDateFactoryLeave := info.DeliveryDateCustomer.AddDate(0, 0, -7) // 离厂交期=客户交期-7
 		deliveryDateFactoryLeaveStr = deliveryDateFactoryLeave.Format("2006-01-02")
 
 		// 工厂交期
@@ -61,7 +65,7 @@ func PoSheetDataParseAh8sw(f *excelize.File, sheetIndex int, info *PoInfo) error
 	}
 
 	for i, row := range rows {
-		// fmt.Printf("----PoSheetDataParseAh8sw--eachrow(%+v)---\n", row)
+		// fmt.Printf("----PoSheetDataParseA63am--eachrow(%+v)---\n", row)
 		// 当前行没有任何数据。跳过。
 		if len(row) == 0 {
 			continue
@@ -76,17 +80,22 @@ func PoSheetDataParseAh8sw(f *excelize.File, sheetIndex int, info *PoInfo) error
 			// 跳过前9行
 			continue
 		}
-
 		// 客户款号。B10 开始
-		styleNo := getCellTrimSpace(f, sheetName, "B", rowindex)
-		// 英文颜色。E10开始
-		colorEn := getCellTrimSpace(f, sheetName, "E", rowindex)
-		// 色号。C10开始
-		colorNo := getCellTrimSpace(f, sheetName, "C", rowindex)
-		// 尺码。H10开始
-		size := getCellTrimSpace(f, sheetName, "H", rowindex)
+		styleNoText := getCellTrimSpace(f, sheetName, "A", rowindex)
+		styleNoSplit := strings.Split(styleNoText, "-")
+		lenStyleNoSplit := len(styleNoSplit)
+		if lenStyleNoSplit < 2 {
+			continue
+		}
+		styleNo := styleNoSplit[0]
+		// 尺码
+		size := styleNoSplit[lenStyleNoSplit-1]
+
+		// 英文颜色。E11开始
+		colorEn := getCellTrimSpace(f, sheetName, "F", rowindex)
+
 		// 订单数量。J10开始
-		qtytext := getCellTrimSpace(f, sheetName, "J", rowindex)
+		qtytext := getCellTrimSpace(f, sheetName, "C", rowindex)
 		if styleNo == "" || colorEn == "" || size == "" || qtytext == "" {
 			continue
 		}
@@ -95,16 +104,17 @@ func PoSheetDataParseAh8sw(f *excelize.File, sheetIndex int, info *PoInfo) error
 		if err != nil {
 			continue
 		}
+		// 目的港
+		destPortName := getCellTrimSpace(f, sheetName, "D", rowindex)
 
 		item := OrderItem{}
 		item.PoNo = info.PoNo
 		item.StyleNo = styleNo
-		item.ColorNo = colorNo
 		item.Qty = qty                                              // 订单数量
 		item.Size = size                                            // 尺码
 		item.ColorEn = colorEn                                      // 英文颜色
 		item.DestCountry = info.DestCountry                         // 目的国
-		item.DestPortName = info.DestPortName                       // 目的港
+		item.DestPortName = destPortName                            // 目的港
 		item.DeliveryDateCustomer = deliveryDateCustomerStr         // 客户交期。必填。
 		item.DeliveryDateFactoryLeave = deliveryDateFactoryLeaveStr // 离厂交期。必填。
 		item.DeliveryDateFactory = deliveryDateFactoryStr           // 工厂交期。非必填。离厂交期-7天

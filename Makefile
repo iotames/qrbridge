@@ -1,5 +1,5 @@
 CC=go
-APP_VERSION=v1.6.4
+APP_VERSION=v1.7.0
 # 中文乱码，在CFLAGS添加-fexec-charset=UTF-8选项
 
 # # For Windows:
@@ -9,7 +9,8 @@ APP_VERSION=v1.6.4
 # 根据操作系统设置目标文件名和链接库
 ifeq ($(OS),Windows_NT)
 	BUILD_FILE_NAME=POTool.exe
-	BUILD_TIME=%date:~0,4%-%date:~5,2%-%date:~8,2%_%time:~0,2%_%time:~3,2%
+# 	BUILD_TIME=%date:~0,4%-%date:~5,2%-%date:~8,2%_%time:~0,2%_%time:~3,2%
+	BUILD_TIME=$(shell powershell -Command "Get-Date -Format 'yyyy-MM-dd_HH_mm'")
 	RELEASE_FILE="release\$(BUILD_FILE_NAME)"
 # 	copy resource\amis\rest.js release\resource\amis
 	GO_BUILD= goversioninfo versioninfo.json && go build -v

@@ -49,7 +49,7 @@ var PoCustomerList = PoCustomers{
 	{Code: "A6WHM", Remark: "HEMA", poTransformFunc: PoA6whmTransform},
 	{Code: "B1ZTV", Remark: "TEVEO", poTransformFunc: PoB1ztvTransform},
 	{Code: "AH8SW", Remark: "ALPHA", poTransformFunc: PoAh8swTransform},
-	// {"A63AM", "A63AM"},
+	{Code: "A63AM", Remark: "", poTransformFunc: PoA63amTransform},
 }
 
 func (pc PoCustomers) GetCodeList() []string {
