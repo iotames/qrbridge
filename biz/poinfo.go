@@ -11,6 +11,7 @@ import (
 // AH8SW 李丝婷
 // A63AM 陈雪娇
 // BEWCW 林容情
+// A8ASO	王阿玲
 
 type PoCustomer struct {
 	Code            string
@@ -51,6 +52,7 @@ var PoCustomerList = PoCustomers{
 	{Code: "AH8SW", Remark: "ALPHA", poTransformFunc: PoAh8swTransform},
 	{Code: "A63AM", Remark: "A63AM", poTransformFunc: PoA63amTransform},
 	{Code: "A6TON", Remark: "A6TON", poTransformFunc: PoA6tonTransform},
+	{Code: "A8ASO", Remark: "STRONGER", poTransformFunc: PoA8asoTransform},
 }
 
 func (pc PoCustomers) GetCodeList() []string {

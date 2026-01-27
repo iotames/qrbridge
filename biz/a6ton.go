@@ -86,9 +86,9 @@ func poSheetDataParseA6ton(f *excelize.File, sheetIndex int, info *PoInfo) error
 			deliveryDateFactoryStr = deliveryDateFactory.Format("2006-01-02")
 		}
 
+		// 更新每个尺码的PO, 目的国，目的港，客户交期，离厂交期，工厂交期
 		for i, item := range info.OrderItems {
 			item.PoNo = info.PoNo
-			// item.ColorEn = colorEn                                      // 英文颜色
 			item.DestCountry = info.DestCountry                         // 目的国
 			item.DestPortName = info.DestPortName                       // 目的港
 			item.DeliveryDateCustomer = deliveryDateCustomerStr         // 客户交期。必填。
@@ -161,7 +161,7 @@ func poSheetDataParseA6ton(f *excelize.File, sheetIndex int, info *PoInfo) error
 				continue
 			}
 			colorEnSplit := strings.Split(colorEnText, "-")
-			colorEn := ""
+			colorEn := colorEnText
 			if len(colorEnSplit) > 1 {
 				colorEn = strings.TrimSpace(colorEnSplit[1])
 			}
@@ -204,33 +204,6 @@ func poSheetDataParseA6ton(f *excelize.File, sheetIndex int, info *PoInfo) error
 		}
 		return nil
 	}
-
-	// for i, row := range rows {
-	// 	// fmt.Printf("----PoSheetDataParseA63am--eachrow(%+v)---\n", row)
-	// 	// 当前行没有任何数据。跳过。
-	// 	if len(row) == 0 {
-	// 		continue
-	// 	}
-	// 	// 定义当前行号
-	// 	rowindex = uint(i + 1)
-	// 	// 跳出空数据行
-	// 	cellA := strings.TrimSpace(row[0])
-	// 	if cellA == "" {
-	// 		continue
-	// 	}
-
-	// 	// if rowindex < 10 {
-	// 	// 	// 跳过前9行
-	// 	// 	continue
-	// 	// }
-	// 	// qtystr := GetDigits(qtytext)
-	// 	// qty, err = strconv.Atoi(qtystr)
-	// 	// if err != nil {
-	// 	// 	continue
-	// 	// }
-	// 	// 目的港
-
-	// }
 	return nil
 }
 
