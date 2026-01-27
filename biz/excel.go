@@ -97,3 +97,26 @@ func nextCellValue(f *excelize.File, sheetName string, col string, startRowIndex
 	*cellValue, _ = f.GetCellValue(sheetName, cell)
 	*cellValue = strings.TrimSpace(*cellValue)
 }
+
+// GetNextStringTrimSpace 通过指定字符串元素，找出相邻的下一个非空字符串的值。
+//
+//	val, _ := GetNextStringTrimSpace([" look "，"", " ", " hi "], "look")
+//	print(val) // hi
+func GetNextStringTrimSpace(arr []string, look string) (val string, found bool) {
+	for i, str := range arr {
+		// 去除当前元素空格后比较
+		if strings.TrimSpace(str) == look {
+			found = true
+			// 从下一个元素开始查找
+			for j := i + 1; j < len(arr); j++ {
+				// 去除空格后判断是否非空
+				trimmed := strings.TrimSpace(arr[j])
+				if trimmed != "" {
+					return trimmed, true
+				}
+			}
+			break
+		}
+	}
+	return "", found // 未找到或没有下一个非空字符串
+}
