@@ -90,3 +90,9 @@ go build -v -o PO转换工具.exe -trimpath -ldflags "-X 'main.BuildTime=%date:~
 ## Bidu Amis低代码引擎
 
 - https://github.com/baidu/amis/releases
+
+## PO转换
+
+```bash
+POTool.exe --inputtpl=A3MJM --inputfile="runtime/客户PO转换模板A3MJM.xlsx"
+```
