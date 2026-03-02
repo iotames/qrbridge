@@ -6,10 +6,31 @@ import (
 	"github.com/iotames/qrbridge/webserver/amis"
 )
 
-func getAmisPageConfig(ctx httpsvr.Context) {
-	pageConf := amis.NewPage("客户PO文件格式转换")
+func getAmisPoImportPage(ctx httpsvr.Context) {
+	pageConf := amis.NewPage(getAmisPageTitle(ctx.Request.URL.Path))
 	item1 := amis.NewFormItem().Set("label", "客户简称").Set("type", "select").Set("name", "inputtpl").Set("value", poCustomers[0].Code).Set("source", "/api/customer/list")
 	item2 := amis.NewFormItem().Set("type", "input-file").Set("name", "inputfile").Set("accept", ".xlsx").Set("label", "上传.xlsx文件").Set("maxSize", 10048576).Set("receiver", "/api/uploadfile")
 	pageConf.Body = *amis.NewForm("/api/potransform").AddItem(item1).AddItem(item2)
+	ctx.Writer.Write(response.NewApiData(pageConf.Json(), "success", 0).Bytes())
+}
+
+func getAmisCmdConfig(ctx httpsvr.Context) {
+	var ok bool
+	title := getAmisPageTitle(ctx.Request.URL.Path)
+
+	do := ctx.GetQueryValue("do", "")
+	if do != "" {
+		domap := map[string]string{
+			"sync": "数据同步",
+		}
+		if title, ok = domap[do]; !ok {
+			title = "快捷操作"
+		}
+	}
+
+	pageConf := amis.NewPage(title)
+	// item1 := amis.NewFormItem().Set("label", "客户简称").Set("type", "select").Set("name", "inputtpl").Set("value", poCustomers[0].Code).Set("source", "/api/customer/list")
+	pageConf.Body = *amis.NewForm("/api/cmd/exec")
+	// .AddItem(item1)
 	ctx.Writer.Write(response.NewApiData(pageConf.Json(), "success", 0).Bytes())
 }

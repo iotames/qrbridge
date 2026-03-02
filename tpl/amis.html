@@ -42,7 +42,7 @@
         // 从API获取amis配置
         async function loadAmisConfig() {
           try {
-            const response = await fetch('/api/amis-page-config');
+            const response = await fetch('<%{ .amis_page_config }%>');
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }

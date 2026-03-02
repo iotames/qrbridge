@@ -4,7 +4,7 @@ go 1.24.1
 
 require (
 	github.com/iotames/easyconf v1.2.1
-	github.com/iotames/easyserver v1.2.0
+	github.com/iotames/easyserver v1.3.0
 	github.com/iotames/miniutils v1.0.11
 	github.com/lib/pq v1.10.9
 	github.com/xuri/excelize/v2 v2.10.0

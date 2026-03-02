@@ -32,6 +32,7 @@ var WebServerPort int
 var ShowSql bool
 var DbDriver, DbHost, DbName, DbSchema, DbUsername, DbPassword string
 var DbPort, DbNodeId, EncryptMultiple, EncryptAdd int
+var AppToken string
 
 func getEnvFile() string {
 	efile := os.Getenv("QR_ENV_FILE")
@@ -63,7 +64,7 @@ func setConfByEnv() {
 	cf.IntVar(&EncryptMultiple, "ENCRYPT_MULTIPLE", 2, "加密倍数")
 	cf.IntVar(&EncryptAdd, "ENCRYPT_ADD", 10086, "加密增量")
 	cf.StringVar(&ToBaseUrl, "TO_BASE_URL", "", "跳转目标的URL前缀。如：https://www.baidu.com")
-
+	cf.StringVar(&AppToken, "APP_TOKEN", "", "APP_TOKEN")
 	cf.Parse(false)
 }
 
