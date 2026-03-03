@@ -11,18 +11,22 @@ import (
 
 var cmdLastExeAt time.Time
 
-// http://172.16.160.11/user/cmd?do=sync&token=ioqwuyhfkluhdsflplqxzbvjhn
+// /user/cmd?do=sync&token=ioqwuyhfkluhdsflplqxzbvjhn
 func execmd(ctx httpsvr.Context) {
 	var err error
 	// 1分钟内不要重复提交
 	if time.Since(cmdLastExeAt) < time.Minute {
 		// ctx.Writer.Write(response.NewApiDataFail(, 400).Bytes())
-		ctx.Json(map[string]any{"status": 404, "msg": "勿频繁提交, 1分钟后再试"}, 200)
+		ctx.Json(map[string]any{"status": 404, "msg": "请求已提交, 5分钟后再试"}, 200)
 		return
 	}
 	cmdLastExeAt = time.Now()
-	postdata := map[string]string{}
-	err = ctx.GetPostJson(postdata)
+
+	// postdata := map[string]string{}
+	// err = ctx.GetPostJson(postdata)
+	// 解析JSON失败json.Unmarshal error: json: Unmarshal(non-pointer map[string]string)
+	var postdata map[string]string
+	err = ctx.GetPostJson(&postdata)
 	if err != nil {
 		ctx.Writer.Write(response.NewApiDataFail(err.Error(), 500).Bytes())
 		return

@@ -51,6 +51,7 @@ endif
 
 # 执行make release时，编译生成最终的可执行文件，并复制到release目录下
 release: initdir $(BUILD_FILE_NAME)
+	-$(MKDIR) release
 	$(COPY) $(BUILD_FILE_NAME) $(RELEASE_FILE)
 	$(COPY) tpl release$(DIRSEP)tpl
 	$(COPY) $(SRC_AMIS_DIR)$(DIRSEP)helper.css $(RELEASE_AMIS_DIR)$(DIRSEP)helper.css

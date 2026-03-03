@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	_ "github.com/lib/pq"
+	// _ "github.com/mattn/go-sqlite3"
 )
 
 // GetDbOpen 获取数据库连接的单例实例
