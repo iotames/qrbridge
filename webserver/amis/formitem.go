@@ -1,6 +1,10 @@
 package amis
 
 type FormItem map[string]any
+type SelectOption struct {
+	Label string `json:"label"`
+	Value string `json:"value"`
+}
 
 func NewFormItem() *FormItem {
 	item := make(FormItem)
@@ -9,6 +13,18 @@ func NewFormItem() *FormItem {
 
 func (f *FormItem) Set(k string, v any) *FormItem {
 	(*f)[k] = v // 需要解引用
+	return f
+}
+
+func (f *FormItem) AddSelectOption(label, value string) *FormItem {
+	opt := SelectOption{label, value}
+	opts, ok := (*f)["options"]
+	if !ok {
+		opts = []SelectOption{opt}
+	} else {
+		opts = append(opts.([]SelectOption), opt)
+	}
+	(*f)["options"] = opts
 	return f
 }
 

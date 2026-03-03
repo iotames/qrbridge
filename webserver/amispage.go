@@ -26,11 +26,16 @@ func getAmisCmdConfig(ctx httpsvr.Context) {
 		if title, ok = domap[do]; !ok {
 			title = "快捷操作"
 		}
+
+		pageConf := amis.NewPage(title)
+
+		item1 := amis.NewFormItem().Set("label", "同步类型").Set("type", "select").
+			Set("name", "optname").Set("value", "userlist").AddSelectOption("人员同步", "userlist")
+		// .Set("source", "/api/customer/list")
+		pageConf.Body = *amis.NewForm("/api/cmd/exec").AddItem(item1)
+		ctx.Writer.Write(response.NewApiData(pageConf.Json(), "success", 0).Bytes())
+	} else {
+		ctx.Json(map[string]any{"code": 400, "msg": "do参数不能为空", "title": title}, 200)
 	}
 
-	pageConf := amis.NewPage(title)
-	// item1 := amis.NewFormItem().Set("label", "客户简称").Set("type", "select").Set("name", "inputtpl").Set("value", poCustomers[0].Code).Set("source", "/api/customer/list")
-	pageConf.Body = *amis.NewForm("/api/cmd/exec")
-	// .AddItem(item1)
-	ctx.Writer.Write(response.NewApiData(pageConf.Json(), "success", 0).Bytes())
 }
