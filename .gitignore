@@ -6,7 +6,6 @@
 *.log
 *.txt
 *.env
-qrbridge
 go.sum
 runtime/
 resource/
@@ -16,3 +15,5 @@ bin/
 *.xlsx
 *.syso
 *.zip
+qrbridge
+oaplus

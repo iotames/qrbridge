@@ -2,6 +2,10 @@ package amis
 
 type JsonContent any
 
+type BaseComponent struct {
+	Type string `json:"type"`
+}
+
 // {
 //           type: 'page',
 //           title: '客户PO文件格式转换',

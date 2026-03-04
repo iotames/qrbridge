@@ -14,7 +14,12 @@ func NewPage(title string) *PageConfig {
 	}
 }
 
-func (p *PageConfig) Json() map[string]any {
+func (p *PageConfig) AddBody(body JsonContent) *PageConfig {
+	p.Body = body
+	return p
+}
+
+func (p PageConfig) Map() map[string]any {
 	return map[string]any{
 		"type":  p.Type,
 		"title": p.Title,
