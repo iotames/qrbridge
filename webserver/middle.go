@@ -10,7 +10,7 @@ import (
 )
 
 func setMiddlewares(svr *httpsvr.EasyServer) {
-	svr.AddMiddleHead(httpsvr.NewMiddleCORS("*"))
+	svr.AddMiddleHead(NewMiddleCORS("*"))
 	svr.AddMiddleHead(httpsvr.NewMiddleStatic("/static/amis", "./resource/amis"))
 	svr.AddMiddleHead(UserAuthMiddle{})
 }
@@ -38,4 +38,30 @@ func (h UserAuthMiddle) Handler(w http.ResponseWriter, r *http.Request, dataFlow
 		return false
 	}
 	return true
+}
+
+// middleCORS CORS跨域设置中间件
+type middleCORS struct {
+	allowOrigin string
+}
+
+// NewMiddleCORS CORS中间件: 跨域设置。例: NewMiddleCORS("*")
+// allowOrigin: 允许跨域的站点。默认值为 "*"。可将将 * 替换为指定的域名
+func NewMiddleCORS(allowOrigin string) *middleCORS {
+	if allowOrigin == "" {
+		allowOrigin = "*"
+	}
+	return &middleCORS{allowOrigin: allowOrigin}
+}
+
+func (m middleCORS) Handler(w http.ResponseWriter, r *http.Request, dataFlow *httpsvr.DataFlow) (subNext bool) {
+	w.Header().Set("Access-Control-Allow-Origin", m.allowOrigin)
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Length, Content-Type, Accept, Token, Auth-Token, X-Requested-With")
+	w.Header().Set("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Cache-Control, Content-Language, Content-Type")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Private-Network", "true")
+	// 注意：如果您的公网应用A需要携带Cookie等凭证，则不能使用 Access-Control-Allow-Origin: *，必须指定具体来源，并设置 Access-Control-Allow-Credentials: true。
+	dataFlow.SetDataReadonly("CorsAllowOrigin", m.allowOrigin)
+	return r.Method != "OPTIONS"
 }
