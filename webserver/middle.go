@@ -60,8 +60,9 @@ func (m middleCORS) Handler(w http.ResponseWriter, r *http.Request, dataFlow *ht
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Length, Content-Type, Accept, Token, Auth-Token, X-Requested-With")
 	w.Header().Set("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Cache-Control, Content-Language, Content-Type")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Private-Network", "true")
-	// 注意：如果您的公网应用A需要携带Cookie等凭证，则不能使用 Access-Control-Allow-Origin: *，必须指定具体来源，并设置 Access-Control-Allow-Credentials: true。
+	// w.Header().Set("Access-Control-Allow-Private-Network", "true")
+	// 注意：如果需要携带Cookie等凭证，则不能使用 Access-Control-Allow-Origin: *，必须指定具体来源，并设置 Access-Control-Allow-Credentials: true。
+	// 根据W3C CORS标准，当 Access-Control-Allow-Credentials为 true时，Access-Control-Allow-Origin绝对不能为 *，必须是一个明确的、单一的源。
 	dataFlow.SetDataReadonly("CorsAllowOrigin", m.allowOrigin)
 	return r.Method != "OPTIONS"
 }
