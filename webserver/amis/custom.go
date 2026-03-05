@@ -49,7 +49,7 @@ func (c *Custom) Map() map[string]any {
 // wsURL: WebSocket 服务端地址
 // outputElementID: 用于显示输出的 HTML 元素 ID
 func BuildWebSocketCustom(wsURL, outputElementID string) *Custom {
-	html := fmt.Sprintf(`<div id="%s" style="background:#1e1e1e; color:#d4d4d4; padding:10px; font-family: 'Courier New', monospace; height: 400px; overflow: auto; white-space: pre-wrap; border-radius: 4px;"></div>`, outputElementID)
+	html := fmt.Sprintf(`<div id="%s" style="background:#1e1e1e; color:#d4d4d4; padding:10px; font-family: 'Courier New', monospace; height: 800px; overflow: auto; white-space: pre-wrap; border-radius: 4px;"></div>`, outputElementID)
 
 	// 注意：onMount 脚本中的字符串需要进行转义，以适应 JSON
 	onMountScript := fmt.Sprintf(`

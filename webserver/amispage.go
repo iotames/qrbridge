@@ -32,7 +32,7 @@ func getAmisCmdConfig(ctx httpsvr.Context) {
 		}
 
 		item1 := amis.NewFormItem().Set("label", "同步类型").Set("type", "select").
-			Set("name", "optname").Set("value", "userlist").AddSelectOption("人员同步", "userlist").AddSelectOption("测试", "debug")
+			Set("name", "optname").Set("value", "userlist").AddSelectOption("人员同步", "userlist").AddSelectOption("调试", "debug")
 		// .Set("source", "/api/customer/list")
 		form1 := *amis.NewForm("/api/cmd/exec").AddItem(item1)
 

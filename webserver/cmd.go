@@ -58,13 +58,16 @@ func execByName(optname string) error {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	case "debug":
+		timeText := time.Now().Format("2006-01-02 15:04:05")
 		if runtime.GOOS == "windows" {
-			// 二进制帧
-			cmd = exec.Command("cmd", "/c", "ping baidu.com")
+			// // 二进制帧
+			// cmd = exec.Command("cmd", "/c", "ping baidu.com")
 			// 文本帧
-			// cmd = exec.Command("cmd", "/c", "echo hello word")
+			cmd = exec.Command("cmd", "/c", "echo Hello Santic "+timeText)
 		} else {
-			cmd = exec.Command("/bin/bash", "-c", "ping baidu.com")
+			// cmd = exec.Command("/bin/bash", "-c", "ping baidu.com")
+			// 文本帧
+			cmd = exec.Command("/bin/bash", "-c", "echo Hello Santic "+timeText)
 		}
 		var connWriters []io.Writer
 		wsvr := tcpserver.GetServer()
