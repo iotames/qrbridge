@@ -1,8 +1,11 @@
 package webserver
 
 import (
+	"fmt"
+
 	"github.com/iotames/easyserver/httpsvr"
 	"github.com/iotames/easyserver/response"
+	"github.com/iotames/qrbridge/conf"
 	"github.com/iotames/qrbridge/webserver/amis"
 )
 
@@ -28,15 +31,19 @@ func getAmisCmdConfig(ctx httpsvr.Context) {
 		}
 
 		item1 := amis.NewFormItem().Set("label", "同步类型").Set("type", "select").
-			Set("name", "optname").Set("value", "userlist").AddSelectOption("人员同步", "userlist")
+			Set("name", "optname").Set("value", "userlist").AddSelectOption("人员同步", "userlist").AddSelectOption("测试", "debug")
 		// .Set("source", "/api/customer/list")
 		form1 := *amis.NewForm("/api/cmd/exec").AddItem(item1)
 
 		grid1 := amis.NewGrid()
 		grid1.Col(form1, 6)
+		grid2 := amis.NewGrid()
 
+		ws := amis.NewWebSocket(fmt.Sprintf("ws://127.0.0.1:%d", conf.WebSocketPort))
+		grid2.Col(ws.Map(), 6)
 		page := amis.NewPage(title)
-		page.AddBody(grid1)
+		grids := []*amis.Grid{grid1, grid2}
+		page.AddBody(grids)
 		ctx.Writer.Write(response.NewApiData(page.Map(), "success", 0).Bytes())
 	} else {
 		ctx.Json(map[string]any{"code": 400, "msg": "do参数不能为空", "title": title}, 200)

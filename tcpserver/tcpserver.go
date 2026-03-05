@@ -1,0 +1,174 @@
+package tcpserver
+
+import (
+	"fmt"
+	"net"
+
+	// "strings"
+	"sync"
+	"time"
+
+	"github.com/iotames/qrbridge/tcpserver/model"
+)
+
+type Server struct {
+	addr          string
+	DropAfter     int
+	filterDataLen int
+	usermap       map[string]User
+	// 操作字典时，要加锁
+	lock sync.RWMutex
+}
+
+var svr *Server
+
+func GetServer() *Server {
+	return svr
+}
+
+// 创建一个server的接口
+func NewServer(addr string, dropAfterSec, filterDataLen int) *Server {
+	if dropAfterSec == 0 {
+		dropAfterSec = 300
+	}
+	server := &Server{
+		addr:          addr,
+		filterDataLen: filterDataLen,
+		DropAfter:     dropAfterSec,
+		usermap:       make(map[string]User, 10),
+	}
+	svr = server
+	return server
+}
+
+func (s *Server) GetConns() []net.Conn {
+	var conns []net.Conn
+	s.Lock()
+	for _, u := range s.usermap {
+		conns = append(conns, u.GetConn())
+	}
+	s.Unlock()
+	return conns
+}
+
+func (s *Server) Lock() {
+	s.lock.Lock()
+}
+
+func (s *Server) Unlock() {
+	s.lock.Unlock()
+}
+
+// 启动服务器的接口
+func (s *Server) Run() error {
+	//socket listen
+	fmt.Printf("[START] TCP Server. listenner at Addr: %s, Starting\n", s.addr)
+	listener, err := net.Listen("tcp", s.addr)
+	if err != nil {
+		return fmt.Errorf("net.Listen err(%v)", err)
+	}
+	//close listen socket
+	defer listener.Close()
+
+	closeListener := false
+	for {
+		go func() {
+			<-StopSignChan
+			fmt.Println("程序将在5秒后退出")
+			time.Sleep(time.Second * 5)
+			closeListener = true
+		}()
+		if closeListener {
+			break
+		}
+		//accept
+		conn, err := listener.Accept()
+		if err != nil {
+			// TODO error
+			fmt.Println("listener accept err:", err)
+			continue
+		}
+
+		//do handler
+		go Handler(s, conn)
+	}
+	fmt.Println("程序已退出")
+	return nil
+}
+
+func (s *Server) SendMsg(u IUser, data []byte) error {
+	data = model.WebSocketPack(data)
+	u.ReceiveDataToSend(data)
+	return nil
+}
+
+// FirstMsg 处理首条消息(心跳消息)
+func (s *Server) FirstMsg(u IUser, data []byte) error {
+	// 建立连接后发送的第一条消息必须为心跳事件消息
+	// 处理首次心跳消息，上线用户
+	return s.UserOnline(u, data)
+}
+
+func (s *Server) HandlerMsg(u IUser, data []byte) error {
+
+	// 在线调试 http://www.websocket-test.com/, https://websocketking.com/
+	msgCount := u.MsgCount()
+	if (u.IsWebSocket() && msgCount == 2) || (!u.IsWebSocket() && msgCount == 1) {
+		// 连接建立后客户端主动发送一个心跳事件消息
+		return s.FirstMsg(u, data)
+	}
+
+	data = model.WebSocketUnpack(data)
+	addr := u.GetConn().RemoteAddr().String()
+	fmt.Printf("----Server.HandlerMsg--addr(%s)--msg(%s)--\n", addr, string(data))
+	// uu := s.addrToUser[addr]
+	// // 根据access_token进行用户身份鉴权
+	// b, err := s.checkToken(uu, u, &msg)
+	// if !b {
+	// 	return err
+	// }
+	newmsg := fmt.Sprintf("client(%s) say: %s", addr, string(data))
+	return s.SendMsg(u, []byte(newmsg))
+
+	// // TODO 对未上线的发送对象，保存离线消息，下次上线时发送
+	// return nil
+}
+
+func (s *Server) UserOnline(u IUser, data []byte) error {
+	addr := u.GetConn().RemoteAddr().String()
+	fmt.Println("UserOnline:", addr)
+	// uu := NewUser(msg.FromUserId)
+	// b, err := s.checkToken(uu, u, msg)
+	// if !b {
+	// 	return err
+	// }
+
+	semddata := "SUCCESS"
+	// msg.Content = "SUCCESS"
+	// msg.ToUserId = msg.FromUserId
+	// msg.FromUserId = model.MSG_KEEP_ALIVE
+	// TODO 读取离线消息，有则发送
+	return s.SendMsg(u, []byte(semddata))
+}
+
+// func (s *Server) UserOffline(addr string) {
+// 	s.Lock()
+// 	fmt.Println("用户已离线", addr)
+// 	s.Unlock()
+// }
+
+var StopSignChan chan string = make(chan string)
+
+// // HTTP 请求处理
+// //
+// //	POST /api/local/stop
+// func closeListener(req *model.Request, resp *model.Response) model.Response {
+// 	remoteAddr := req.RemoteAddr().String()
+// 	if strings.Contains(remoteAddr, "127.0.0.1") || strings.Contains(remoteAddr, "::1") {
+// 		go func() {
+// 			StopSignChan <- "stop"
+// 		}()
+// 		return resp.Json(model.ResponseOk("操作成功"))
+// 	}
+// 	return resp.Json(model.ResponseFail("仅限内网访问", 400))
+// }

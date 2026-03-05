@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/iotames/qrbridge/conf"
+	"github.com/iotames/qrbridge/tcpserver"
 	"github.com/iotames/qrbridge/webserver"
 )
 
@@ -52,7 +53,14 @@ func main() {
 			}
 		}()
 	}
-
+	if conf.WebSocketPort != 0 {
+		go func() {
+			err := tcpserver.NewServer(fmt.Sprintf("0.0.0.0:%d", conf.WebSocketPort), 600, 3).Run()
+			if err != nil {
+				log.Println("websocket server error:", err)
+			}
+		}()
+	}
 	webserver.Run(conf.WebServerPort)
 }
 
