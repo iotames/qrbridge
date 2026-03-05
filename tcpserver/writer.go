@@ -10,7 +10,8 @@ type webSocketWriter struct {
 }
 
 func (w *webSocketWriter) Write(p []byte) (n int, err error) {
-	framed := model.WebSocketPack(p)
+	// framed := model.WebSocketPack(p)
+	framed := model.WebSocketPackBinary(p) // 改为二进制帧
 	w.user.ReceiveDataToSend(framed)
 	return len(p), nil
 }

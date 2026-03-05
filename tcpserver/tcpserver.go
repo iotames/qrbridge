@@ -131,6 +131,7 @@ func (s *Server) FirstMsg(u IUser, data []byte) error {
 func (s *Server) HandlerMsg(u IUser, data []byte) error {
 
 	// 在线调试 http://www.websocket-test.com/, https://websocketking.com/
+	var err error
 	msgCount := u.MsgCount()
 	log.Printf("---TCP---Server.HandlerMsg--IsWebSocket(%+v)--u.MsgCount=(%d)---\n", u.IsWebSocket(), u.MsgCount())
 
@@ -139,20 +140,49 @@ func (s *Server) HandlerMsg(u IUser, data []byte) error {
 		return s.FirstMsg(u, data)
 	}
 
-	data = model.WebSocketUnpack(data)
+	// 解包 WebSocket 帧，获取 payload 和 opcode
+	payload, opcode, err := model.WebSocketUnpack(data)
+	if err != nil {
+		log.Printf("---unpackWebsocket err(%+v)----\n", err)
+		return err
+	}
+
 	addr := u.GetConn().RemoteAddr().String()
 	fmt.Printf("----Server.HandlerMsg--addr(%s)--msg(%s)--\n", addr, string(data))
+
 	// uu := s.addrToUser[addr]
 	// // 根据access_token进行用户身份鉴权
 	// b, err := s.checkToken(uu, u, &msg)
 	// if !b {
 	// 	return err
 	// }
-	newmsg := fmt.Sprintf("client(%s) say: %s", addr, string(data))
-	return s.SendMsg(u, []byte(newmsg))
 
 	// // TODO 对未上线的发送对象，保存离线消息，下次上线时发送
-	// return nil
+
+	switch opcode {
+	case 0x1: // 文本帧
+		fmt.Printf("----Server.HandlerMsg--addr(%s)--text msg(%s)--\n", addr, string(payload))
+		newmsg := fmt.Sprintf("client(%s) say: %s", addr, string(payload))
+		// 回显文本帧
+		return s.SendMsg(u, []byte(newmsg))
+
+	case 0x2: // 二进制帧
+		fmt.Printf("----Server.HandlerMsg--addr(%s)--binary msg len=%d--\n", addr, len(payload))
+		// 回映二进制数据，使用二进制帧
+		return s.SendBinaryMsg(u, payload)
+
+	default:
+		// 其他 opcode（如 ping/pong）可忽略或关闭连接
+		log.Printf("unsupported opcode: %d", opcode)
+		return nil
+	}
+}
+
+// SendBinaryMsg 发送二进制帧给客户端
+func (s *Server) SendBinaryMsg(u IUser, data []byte) error {
+	framed := model.WebSocketPackBinary(data) // 使用二进制封帧
+	u.ReceiveDataToSend(framed)
+	return nil
 }
 
 func (s *Server) UserOnline(u IUser, data []byte) error {

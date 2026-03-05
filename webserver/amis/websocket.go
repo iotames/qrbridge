@@ -18,11 +18,13 @@ func NewWebSocket(url string) *WebSocket {
 	// ws.Ws.Data = map[string]string{"name": "${name}"}
 	ws.Ws.ResponseKey = "output" // 假设返回的字符串放在output字段
 	ws.Body = map[string]any{
-		"type":       "log",
-		"height":     300, // 设置固定高度
-		"autoScroll": true,
-		"placement":  "top",
-		"source":     "${output}", // 绑定数据
+		"type": "tpl",
+		"tpl":  "<pre style='background:#f5f5f5;padding:10px;'>${output}</pre>",
+		// "type":       "log",
+		// "height":     300, // 设置固定高度
+		// "autoScroll": true,
+		// "placement":  "top",
+		// "source":     "${output}", // 绑定数据
 	}
 	return ws
 }

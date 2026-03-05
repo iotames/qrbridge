@@ -59,7 +59,10 @@ func execByName(optname string) error {
 		cmd.Stderr = os.Stderr
 	case "debug":
 		if runtime.GOOS == "windows" {
+			// 二进制帧
 			cmd = exec.Command("cmd", "/c", "ping baidu.com")
+			// 文本帧
+			// cmd = exec.Command("cmd", "/c", "echo hello word")
 		} else {
 			cmd = exec.Command("/bin/bash", "-c", "ping baidu.com")
 		}

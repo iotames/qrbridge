@@ -37,14 +37,20 @@ func getAmisCmdConfig(ctx httpsvr.Context) {
 		form1 := *amis.NewForm("/api/cmd/exec").AddItem(item1)
 
 		grid1 := amis.NewGrid()
-		grid1.Col(form1, 6)
-		grid2 := amis.NewGrid()
+		grid1.Col(form1, 3)
+
 		// "ws://localhost:8777"
 		wsaddr := fmt.Sprintf("ws://127.0.0.1:%d", conf.WebSocketPort)
-		ws := amis.NewWebSocket(wsaddr)
-		grid2.Col(ws.Map(), 6)
+		// customComp  := amis.NewWebSocket(wsaddr)
+		customComp := amis.BuildWebSocketCustom(wsaddr, "cmd-output-area")
+		grid1.Col(customComp.Map(), 9)
+
+		// grid2 := amis.NewGrid()
+		// grid2.Col(customComp.Map(), 9)
+
 		page := amis.NewPage(title)
-		grids := []*amis.Grid{grid1, grid2}
+		// grids := []*amis.Grid{grid1, grid2}
+		grids := []*amis.Grid{grid1}
 		page.AddBody(grids)
 		ctx.Writer.Write(response.NewApiData(page.Map(), "success", 0).Bytes())
 	} else {
