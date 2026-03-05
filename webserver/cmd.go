@@ -59,9 +59,9 @@ func execByName(optname string) error {
 		cmd.Stderr = os.Stderr
 	case "debug":
 		if runtime.GOOS == "windows" {
-			cmd = exec.Command("cmd", "/c", "echo hello debug")
+			cmd = exec.Command("cmd", "/c", "ping baidu.com")
 		} else {
-			cmd = exec.Command("/bin/bash", "-c", "echo hello debug")
+			cmd = exec.Command("/bin/bash", "-c", "ping baidu.com")
 		}
 		var connWriters []io.Writer
 		wsvr := tcpserver.GetServer()

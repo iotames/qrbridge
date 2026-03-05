@@ -6,6 +6,7 @@ import (
 	"net"
 
 	// "strings"
+	"log"
 	"sync"
 	"time"
 
@@ -123,6 +124,7 @@ func (s *Server) SendMsg(u IUser, data []byte) error {
 func (s *Server) FirstMsg(u IUser, data []byte) error {
 	// 建立连接后发送的第一条消息必须为心跳事件消息
 	// 处理首次心跳消息，上线用户
+	log.Printf("----FirstMsg---u.MsgCount=(%d)----------\n", u.MsgCount())
 	return s.UserOnline(u, data)
 }
 
@@ -130,6 +132,8 @@ func (s *Server) HandlerMsg(u IUser, data []byte) error {
 
 	// 在线调试 http://www.websocket-test.com/, https://websocketking.com/
 	msgCount := u.MsgCount()
+	log.Printf("---TCP---Server.HandlerMsg--IsWebSocket(%+v)--u.MsgCount=(%d)---\n", u.IsWebSocket(), u.MsgCount())
+
 	if (u.IsWebSocket() && msgCount == 2) || (!u.IsWebSocket() && msgCount == 1) {
 		// 连接建立后客户端主动发送一个心跳事件消息
 		return s.FirstMsg(u, data)
@@ -153,7 +157,7 @@ func (s *Server) HandlerMsg(u IUser, data []byte) error {
 
 func (s *Server) UserOnline(u IUser, data []byte) error {
 	addr := u.GetConn().RemoteAddr().String()
-	fmt.Println("UserOnline:", addr)
+	log.Println("UserOnline:", addr)
 	// uu := NewUser(msg.FromUserId)
 	// b, err := s.checkToken(uu, u, msg)
 	// if !b {

@@ -1,8 +1,9 @@
 package amis
 
 type WsConf struct {
-	Url  string      `json:"url"`
-	Data JsonContent `json:"data"`
+	Url         string      `json:"url"`
+	Data        JsonContent `json:"data"`
+	ResponseKey string      `json:"responseKey"`
 }
 
 type WebSocket struct {
@@ -14,6 +15,15 @@ type WebSocket struct {
 func NewWebSocket(url string) *WebSocket {
 	ws := &WebSocket{BaseComponent: BaseComponent{Type: "service"}}
 	ws.Ws.Url = url
+	// ws.Ws.Data = map[string]string{"name": "${name}"}
+	ws.Ws.ResponseKey = "output" // 假设返回的字符串放在output字段
+	ws.Body = map[string]any{
+		"type":       "log",
+		"height":     300, // 设置固定高度
+		"autoScroll": true,
+		"placement":  "top",
+		"source":     "${output}", // 绑定数据
+	}
 	return ws
 }
 

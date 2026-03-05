@@ -5,6 +5,7 @@ import (
 
 	"github.com/iotames/easyserver/httpsvr"
 	"github.com/iotames/easyserver/response"
+
 	"github.com/iotames/qrbridge/conf"
 	"github.com/iotames/qrbridge/webserver/amis"
 )
@@ -38,8 +39,9 @@ func getAmisCmdConfig(ctx httpsvr.Context) {
 		grid1 := amis.NewGrid()
 		grid1.Col(form1, 6)
 		grid2 := amis.NewGrid()
-
-		ws := amis.NewWebSocket(fmt.Sprintf("ws://127.0.0.1:%d", conf.WebSocketPort))
+		// "ws://localhost:8777"
+		wsaddr := fmt.Sprintf("ws://127.0.0.1:%d", conf.WebSocketPort)
+		ws := amis.NewWebSocket(wsaddr)
 		grid2.Col(ws.Map(), 6)
 		page := amis.NewPage(title)
 		grids := []*amis.Grid{grid1, grid2}

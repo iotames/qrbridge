@@ -2,6 +2,7 @@ package tcpserver
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"time"
 
@@ -16,11 +17,11 @@ func Handler(s *Server, conn net.Conn) {
 
 	u.SetOnConnectStart(func(uu User) {
 		s.Lock()
-		fmt.Println("TCP连接建立成功:", remoteAddr)
+		log.Println("TCP连接建立成功:", remoteAddr)
 		_, ok := s.usermap[remoteAddr]
 		if !ok {
 			s.usermap[remoteAddr] = u
-			fmt.Println("用户已上线", remoteAddr)
+			log.Println("用户已上线:", remoteAddr)
 		}
 		s.Unlock()
 	})
@@ -29,9 +30,9 @@ func Handler(s *Server, conn net.Conn) {
 		_, ok := s.usermap[remoteAddr]
 		if ok {
 			delete(s.usermap, remoteAddr)
-			fmt.Println("用户已离线", remoteAddr)
+			log.Println("用户已离线:", remoteAddr)
 		}
-		fmt.Println("TCP连接断开")
+		log.Println("TCP连接断开:", remoteAddr)
 		s.Unlock()
 	})
 	u.ConnectStart()
