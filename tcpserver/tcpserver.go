@@ -2,6 +2,7 @@ package tcpserver
 
 import (
 	"fmt"
+	"io"
 	"net"
 
 	// "strings"
@@ -15,7 +16,7 @@ type Server struct {
 	addr          string
 	DropAfter     int
 	filterDataLen int
-	usermap       map[string]User
+	usermap       map[string]*User
 	// 操作字典时，要加锁
 	lock sync.RWMutex
 }
@@ -35,7 +36,7 @@ func NewServer(addr string, dropAfterSec, filterDataLen int) *Server {
 		addr:          addr,
 		filterDataLen: filterDataLen,
 		DropAfter:     dropAfterSec,
-		usermap:       make(map[string]User, 10),
+		usermap:       make(map[string]*User, 10),
 	}
 	svr = server
 	return server
@@ -49,6 +50,22 @@ func (s *Server) GetConns() []net.Conn {
 	}
 	s.Unlock()
 	return conns
+}
+
+// GetOutputWriters 返回所有当前连接的 writer，WebSocket 连接自动包装，普通 TCP 也统一通过 channel 发送
+func (s *Server) GetOutputWriters() []io.Writer {
+	s.Lock()
+	defer s.Unlock()
+
+	var writers []io.Writer
+	for _, u := range s.usermap {
+		if u.IsWebSocket() {
+			writers = append(writers, &webSocketWriter{user: u})
+		} else {
+			writers = append(writers, &rawTCPWriter{user: u})
+		}
+	}
+	return writers
 }
 
 func (s *Server) Lock() {

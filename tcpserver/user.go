@@ -27,7 +27,7 @@ type User struct {
 // 创建一个用户的API
 func NewUser(conn net.Conn) *User {
 	u := &User{
-		message:  make(chan []byte),
+		message:  make(chan []byte, 100),
 		isActive: make(chan bool),
 		conn:     conn,
 	}
@@ -108,6 +108,11 @@ func (u *User) Close() error {
 // ReceiveDataToSend 接受消息，并通过channel发送给客户端。异步操作。支持并发。
 // 当连接断开时，可能会继续发送异步消息。此时须使用同步锁
 func (u *User) ReceiveDataToSend(d []byte) {
+	defer func() {
+		if recover() != nil {
+			// channel 已关闭，忽略
+		}
+	}()
 	u.message <- d
 }
 
@@ -159,14 +164,28 @@ func (u *User) GetConnData() (data []byte, err error) {
 
 // 监听当前User channel的 方法,一旦有消息，就直接发送给对端客户端
 func (u *User) ListenMessage() {
-	for {
-		msg := <-u.message
-		u.SendData(msg)
+	for msg := range u.message {
+		if err := u.SendData(msg); err != nil {
+			// 发送失败，记录日志并关闭连接
+			logger := miniutils.GetLogger("")
+			logger.Errorf("发送数据失败: %v", err)
+			if !u.IsClosed {
+				u.Close()
+			}
+			return // 退出监听 goroutine
+		}
 	}
 }
 
-// SendData 发送数据给客户端。同步操作
-func (u User) SendData(d []byte) error {
-	_, err := u.conn.Write(d)
-	return err
+// SendData 发送数据给客户端（同步操作，应由 ListenMessage 单一 goroutine 调用）
+func (u *User) SendData(d []byte) error {
+	nw, err := u.conn.Write(d)
+	if err != nil {
+		return err
+	}
+	if nw < len(d) {
+		// 部分写入，返回短写入错误
+		return io.ErrShortWrite
+	}
+	return nil
 }

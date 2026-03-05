@@ -63,18 +63,19 @@ func execByName(optname string) error {
 		} else {
 			cmd = exec.Command("/bin/bash", "-c", "echo hello debug")
 		}
-		var writers []io.Writer
-
+		var connWriters []io.Writer
 		wsvr := tcpserver.GetServer()
 		if wsvr != nil {
-			conns := wsvr.GetConns()
-			for _, conn := range conns {
-				writers = append(writers, conn)
-			}
+			connWriters = wsvr.GetOutputWriters()
 		}
-		// TODO 要先转换再写入。websocket pack 然后才能用websocket
-		cmd.Stdout = io.MultiWriter(append([]io.Writer{os.Stdout}, writers...)...)
-		cmd.Stderr = io.MultiWriter(append([]io.Writer{os.Stderr}, writers...)...)
+
+		// 标准输出：同时写入本地 stdout 和所有连接
+		stdoutWriters := append([]io.Writer{os.Stdout}, connWriters...)
+		cmd.Stdout = io.MultiWriter(stdoutWriters...)
+
+		// 标准错误：同时写入本地 stderr 和所有连接
+		stderrWriters := append([]io.Writer{os.Stderr}, connWriters...)
+		cmd.Stderr = io.MultiWriter(stderrWriters...)
 	}
 	return cmd.Start()
 }

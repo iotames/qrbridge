@@ -14,7 +14,7 @@ func Handler(s *Server, conn net.Conn) {
 	u := NewUser(conn)
 	remoteAddr := conn.RemoteAddr().String()
 
-	u.SetOnConnectStart(func(u User) {
+	u.SetOnConnectStart(func(uu User) {
 		s.Lock()
 		fmt.Println("TCP连接建立成功:", remoteAddr)
 		_, ok := s.usermap[remoteAddr]
@@ -24,7 +24,7 @@ func Handler(s *Server, conn net.Conn) {
 		}
 		s.Unlock()
 	})
-	u.SetOnConnectLost(func(u User) {
+	u.SetOnConnectLost(func(uu User) {
 		s.Lock()
 		_, ok := s.usermap[remoteAddr]
 		if ok {
