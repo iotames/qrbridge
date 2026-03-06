@@ -24,6 +24,8 @@ import (
 //     ]
 // }
 
+const TYPE_CMD_SHELL = "shell"
+
 type CmdInfo struct {
 	Type  string   `json:"type"`
 	Name  string   `json:"name"`
@@ -37,7 +39,7 @@ type CmdsInfo struct {
 	List []CmdInfo `json:"list"`
 }
 
-func GetMyCmds() ([]CmdInfo, error) {
+func GetCmds() ([]CmdInfo, error) {
 	sp := hotswap.GetScriptDir(nil)
 	cmdsinfo := CmdsInfo{}
 	err := sp.DecodeJson("cmdlist.json", &cmdsinfo)

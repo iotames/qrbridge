@@ -1,6 +1,7 @@
 package webserver
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -42,7 +43,8 @@ func execmd(ctx httpsvr.Context) {
 		err = execByName(optname)
 		if err != nil {
 			log.Printf("---execmd--postdata(%+v)-error(%+v)----\n", postdata, err)
-			ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())
+			ctx.Json(map[string]any{"code": 500, "msg": "获取命令列表错误：" + err.Error()}, 200)
+			// ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())
 			return
 		}
 	} else {
@@ -54,28 +56,41 @@ func execmd(ctx httpsvr.Context) {
 
 func execByName(optname string) error {
 	var cmd *exec.Cmd
+	var cmdinfos []CmdInfo
+	var err error
 	var connWriters []io.Writer
 	wsvr := tcpserver.GetServer()
 	if wsvr != nil {
 		connWriters = wsvr.GetOutputWriters()
 	}
 
-	switch optname {
-	case "userlist":
-		cmd = exec.Command("/bin/bash", "-c", "/home/santic/kettle_hour.sh")
-	case "debug":
-		timeText := time.Now().Format("2006-01-02 15:04:05")
-		if runtime.GOOS == "windows" {
-			// // 二进制帧
-			// cmd = exec.Command("cmd", "/c", "ping baidu.com")
-			// 文本帧
-			cmd = exec.Command("cmd", "/c", "echo Hello Santic "+timeText)
-		} else {
-			// cmd = exec.Command("/bin/bash", "-c", "ping baidu.com")
-			// 文本帧
-			cmd = exec.Command("/bin/bash", "-c", "echo Hello Santic "+timeText)
+	cmdinfos, err = GetCmds()
+	if err != nil {
+		return err
+	}
+	for _, cmdinfo := range cmdinfos {
+		if cmdinfo.Name == optname {
+			cmd = exec.Command(cmdinfo.Cmd, cmdinfo.Args...)
+			if cmdinfo.Type == TYPE_CMD_SHELL {
+				// ping 二进制帧 echo 文本帧
+				switch runtime.GOOS {
+				case "windows":
+					cmd = exec.Command("cmd", "/c", cmdinfo.Cmd)
+				case "linux":
+					cmd = exec.Command("/bin/bash", "-c", cmdinfo.Cmd)
+				default:
+					cmd = exec.Command("/bin/bash", "-c", cmdinfo.Cmd)
+				}
+			}
 		}
 	}
+
+	if cmd == nil {
+		return fmt.Errorf("not found cmdname: %s", optname)
+	}
+	timeText := time.Now().Format("2006-01-02 15:04:05")
+	cmd.Env = append(os.Environ(), "NOW_TIME="+timeText)
+
 	// 标准输出：同时写入本地 stdout 和所有连接
 	stdoutWriters := append([]io.Writer{os.Stdout}, connWriters...)
 	cmd.Stdout = io.MultiWriter(stdoutWriters...)
@@ -85,7 +100,7 @@ func execByName(optname string) error {
 	cmd.Stderr = io.MultiWriter(stderrWriters...)
 
 	// 启动命令
-	err := cmd.Start()
+	err = cmd.Start()
 	if err != nil {
 		return err
 	}

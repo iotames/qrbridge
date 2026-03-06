@@ -1,5 +1,22 @@
 CC=go
-APP_VERSION=v1.11.2
+
+# 版本配置
+VERSION_FILE := version.txt
+
+# 核心读取逻辑：文件存在则读取，不存在则报错
+ifneq ($(wildcard $(VERSION_FILE)),)
+  # 读取文件内容（GNU Make 4.0+ 的 $(file <) 函数）
+  FILE_CONTENTS := $(file < $(VERSION_FILE))
+  # 取第一行并去除两端空白
+  APP_VERSION := $(strip $(firstword $(FILE_CONTENTS)))
+  # 检查读取结果是否为空
+  ifeq ($(APP_VERSION),)
+    $(error $(VERSION_FILE) is empty)
+  endif
+else
+  $(error $(VERSION_FILE) not found)
+endif
+
 # 中文乱码，在CFLAGS添加-fexec-charset=UTF-8选项
 
 # # For Windows:
@@ -69,6 +86,7 @@ endif
 	@echo "ZIP Generate Done: $(ZIP_NAME)"
 
 debug:
+	@echo $(APP_VERSION)
 	@echo $(SRC_AMIS_DIR)
 	@echo $(RELEASE_AMIS_DIR)
 	@echo $(BUILD_TIME)

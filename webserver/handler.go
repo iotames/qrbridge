@@ -19,7 +19,7 @@ type WebPage struct {
 func getWebPageList() []WebPage {
 	return []WebPage{
 		{"/user/po-import", "客户PO文件转换", "/api/po-import-page"},
-		{"/user/cmd", "快捷命令", "/api/cmd-page"},
+		{"/user/cmd", "快捷操作", "/api/cmd-page"},
 	}
 }
 
