@@ -1,5 +1,8 @@
 #!/bin/bash
 
+git pull
+go mod tidy
+
 BUILD_TIME=$(date +%Y-%m-%d_%H_%M)
 # APP_VERSION=$(cat version.txt)
 read APP_VERSION < version.txt

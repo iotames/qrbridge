@@ -4,7 +4,6 @@
 *.exe
 *.cookie
 *.log
-*.txt
 *.env
 go.sum
 runtime/
