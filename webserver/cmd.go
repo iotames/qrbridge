@@ -1,8 +1,8 @@
 package webserver
 
 import (
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -41,7 +41,7 @@ func execmd(ctx httpsvr.Context) {
 		}
 		err = execByName(optname)
 		if err != nil {
-			fmt.Printf("---exe-error(%+v)----\n", err)
+			log.Printf("---execmd--postdata(%+v)-error(%+v)----\n", postdata, err)
 			ctx.Writer.Write(response.NewApiDataServerError(err.Error()).Bytes())
 			return
 		}
@@ -54,11 +54,15 @@ func execmd(ctx httpsvr.Context) {
 
 func execByName(optname string) error {
 	var cmd *exec.Cmd
+	var connWriters []io.Writer
+	wsvr := tcpserver.GetServer()
+	if wsvr != nil {
+		connWriters = wsvr.GetOutputWriters()
+	}
+
 	switch optname {
 	case "userlist":
 		cmd = exec.Command("/bin/bash", "-c", "/home/santic/kettle_hour.sh")
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
 	case "debug":
 		timeText := time.Now().Format("2006-01-02 15:04:05")
 		if runtime.GOOS == "windows" {
@@ -71,19 +75,29 @@ func execByName(optname string) error {
 			// 文本帧
 			cmd = exec.Command("/bin/bash", "-c", "echo Hello Santic "+timeText)
 		}
-		var connWriters []io.Writer
-		wsvr := tcpserver.GetServer()
-		if wsvr != nil {
-			connWriters = wsvr.GetOutputWriters()
-		}
-
-		// 标准输出：同时写入本地 stdout 和所有连接
-		stdoutWriters := append([]io.Writer{os.Stdout}, connWriters...)
-		cmd.Stdout = io.MultiWriter(stdoutWriters...)
-
-		// 标准错误：同时写入本地 stderr 和所有连接
-		stderrWriters := append([]io.Writer{os.Stderr}, connWriters...)
-		cmd.Stderr = io.MultiWriter(stderrWriters...)
 	}
-	return cmd.Start()
+	// 标准输出：同时写入本地 stdout 和所有连接
+	stdoutWriters := append([]io.Writer{os.Stdout}, connWriters...)
+	cmd.Stdout = io.MultiWriter(stdoutWriters...)
+
+	// 标准错误：同时写入本地 stderr 和所有连接
+	stderrWriters := append([]io.Writer{os.Stderr}, connWriters...)
+	cmd.Stderr = io.MultiWriter(stderrWriters...)
+
+	// 启动命令
+	err := cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	// 关键修复：启动一个协程来等待命令结束，以回收系统资源，避免僵尸进程
+	go func() {
+		waitErr := cmd.Wait()
+		if waitErr != nil {
+			// 此处可以记录日志，但不应影响主流程返回
+			log.Printf("---execByName--命令等待结束时报错(%v)---\n", waitErr)
+		}
+	}()
+
+	return nil // 主函数立即返回，不阻塞HTTP请求
 }

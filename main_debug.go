@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/iotames/qrbridge/biz"
 
@@ -20,6 +21,10 @@ func debug() {
 	// for _, f := range filelist {
 	// 	fmt.Println(f)
 	// }
+	// data := map[string]any{}
+	// hotswap.GetScriptDir(nil).DecodeJson("cmdlist.json", &data)
+	// log.Printf("-------cmdlist.json(%+v)----\n", data)
+
 	if Inputfile != "" {
 		f, err := service.NewTableFile(Inputfile).OpenExcel()
 		if err != nil {
@@ -31,7 +36,7 @@ func debug() {
 			panic(fmt.Errorf("解析Excel文件失败: %w", err))
 		}
 		for i, item := range info.OrderItems {
-			fmt.Printf("----i(%d)---item(%+v)---------\n", i, item)
+			log.Printf("----i(%d)---item(%+v)---------\n", i, item)
 		}
 	}
 }
