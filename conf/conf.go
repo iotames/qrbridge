@@ -32,7 +32,7 @@ var WebServerPort int
 var ShowSql bool
 var DbDriver, DbHost, DbName, DbSchema, DbUsername, DbPassword string
 var DbPort, DbNodeId, EncryptMultiple, EncryptAdd int
-var AppToken string
+var AppToken, WebSocketAddr string
 var WebSocketPort int
 
 func getEnvFile() string {
@@ -66,6 +66,7 @@ func setConfByEnv() {
 	cf.IntVar(&EncryptAdd, "ENCRYPT_ADD", 10086, "加密增量")
 	cf.StringVar(&ToBaseUrl, "TO_BASE_URL", "", "跳转目标的URL前缀。如：https://www.baidu.com")
 	cf.StringVar(&AppToken, "APP_TOKEN", "", "APP_TOKEN")
+	cf.StringVar(&WebSocketAddr, "WEBSOCKET_ADDR", "ws://127.0.0.1:7080", "远程websocket地址")
 	cf.IntVar(&WebSocketPort, "WEBSOCKET_PORT", 7080, "websocket地址。如: 7070")
 	cf.Parse(false)
 }

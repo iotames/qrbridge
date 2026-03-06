@@ -1,8 +1,6 @@
 package webserver
 
 import (
-	"fmt"
-
 	"github.com/iotames/easyserver/httpsvr"
 	"github.com/iotames/easyserver/response"
 
@@ -38,9 +36,8 @@ func getAmisCmdConfig(ctx httpsvr.Context) {
 
 		grid1 := amis.NewGrid()
 		grid1.Col(form1, 3)
-
 		// "ws://localhost:8777"
-		wsaddr := fmt.Sprintf("ws://127.0.0.1:%d", conf.WebSocketPort)
+		wsaddr := conf.WebSocketAddr
 		// customComp  := amis.NewWebSocket(wsaddr)
 		customComp := amis.BuildWebSocketCustom(wsaddr, "cmd-output-area")
 		grid1.Col(customComp.Map(), 9)
