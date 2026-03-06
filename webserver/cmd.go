@@ -3,6 +3,7 @@ package webserver
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
@@ -15,7 +16,7 @@ import (
 
 var cmdLastExeAt time.Time
 
-// /user/cmd?do=sync&token=ioqwuyhfkluhdsflplqxzbvjhn
+// /user/cmd?do=sync&token=xxxxxxxx
 func execmd(ctx httpsvr.Context) {
 	var err error
 	// postdata := map[string]string{}
@@ -29,14 +30,15 @@ func execmd(ctx httpsvr.Context) {
 	}
 	optname, ok := postdata["optname"]
 	if ok {
-		// 1分钟内不要重复提交
-		if time.Since(cmdLastExeAt) < time.Minute && optname == "userlist" {
-			// ctx.Writer.Write(response.NewApiDataFail(, 400).Bytes())
-			ctx.Json(map[string]any{"status": 404, "msg": "请求已提交, 5分钟后再试"}, 200)
-			return
+		// 5分钟内不要重复提交
+		if optname == "userlist" {
+			if time.Since(cmdLastExeAt) < time.Minute {
+				// http状态码设置为400也可以工作 ctx.Json(map[string]any{"status": http.StatusBadRequest, "msg": "请求已提交, 5分钟后再试"}, 400)
+				ctx.Json(map[string]any{"status": http.StatusBadRequest, "msg": "请求已提交, 5分钟后再试"}, 200)
+				return
+			}
+			cmdLastExeAt = time.Now()
 		}
-		cmdLastExeAt = time.Now()
-
 		err = execByName(optname)
 		if err != nil {
 			fmt.Printf("---exe-error(%+v)----\n", err)
