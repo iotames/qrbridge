@@ -16,6 +16,7 @@ import (
 // A6TON 罗媛
 // A86SG 许雅晶
 // A2QSE 陈银凤
+// A7X4F 王冰冰 曾娜双
 
 type PoCustomer struct {
 	Code            string
@@ -60,6 +61,7 @@ var PoCustomerList = PoCustomers{
 	{Code: "A3MJM", Remark: "JOMA", poTransformFunc: PoA3mjmTransform},
 	{Code: "A86SG", Remark: "REVISED", poTransformFunc: PoA86sgTransform},
 	{Code: "A2QSE", Remark: "A2QSE", poTransformFunc: PoA2qseTransform},
+	{Code: "A7X4F", Remark: "A7X4F", poTransformFunc: PoA7x4fTransform},
 }
 
 func (pc PoCustomers) GetCodeList() []string {

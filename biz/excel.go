@@ -8,6 +8,9 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+// potransform excel表格处理主函数
+//
+// sheetIndex sheet页索引。0代表读取第1个Sheet页面。-1代表循环读取所有Sheet页面。
 func potransform(inputfile, outputfile string, sheetIndex int, transfunc func(f *excelize.File, sheetIndex int, info *PoInfo) error) (info PoInfo, err error) {
 	f, err := service.NewTableFile(inputfile).OpenExcel()
 	if err != nil {

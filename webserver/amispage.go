@@ -19,15 +19,6 @@ func getAmisPoImportPage(ctx httpsvr.Context) {
 func getAmisCmdConfig(ctx httpsvr.Context) {
 	var err error
 	title := getAmisPageTitle(ctx.Request.URL.Path)
-	// var ok bool
-	// do := ctx.GetQueryValue("do", "")
-	// ctx.Json(map[string]any{"code": 400, "msg": "do参数不能为空", "title": title}, 200)
-	// domap := map[string]string{
-	// 	"sync": "数据同步",
-	// }
-	// if title, ok = domap[do]; !ok {
-	// 	title = "快捷操作"
-	// }
 
 	item1 := amis.NewFormItem().Set("label", "操作类型").Set("type", "select").
 		Set("labelRemark", "点击“提交”后3-5分钟执行完成，请耐心等待！").
@@ -42,7 +33,7 @@ func getAmisCmdConfig(ctx httpsvr.Context) {
 	}
 
 	// 1. 添加提交表单
-	form1 := *amis.NewForm("/api/cmd/exec", title).AddItem(item1)
+	form1 := *amis.NewForm("/api/cmd/exec", "").AddItem(item1)
 
 	grid1 := amis.NewGrid()
 	// grid1.Col(form1, 3)
