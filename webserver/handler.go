@@ -25,7 +25,7 @@ func getWebPageList() []WebPage {
 
 func getAmisPageTitle(urlpath string) string {
 	for _, p := range getWebPageList() {
-		if p.UrlPath == urlpath {
+		if p.UrlPath == urlpath || p.AmisPageConfig == urlpath {
 			return p.Title
 		}
 	}

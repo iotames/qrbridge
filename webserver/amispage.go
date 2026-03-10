@@ -12,7 +12,7 @@ func getAmisPoImportPage(ctx httpsvr.Context) {
 	pageConf := amis.NewPage(getAmisPageTitle(ctx.Request.URL.Path))
 	item1 := amis.NewFormItem().Set("label", "客户简称").Set("type", "select").Set("name", "inputtpl").Set("value", poCustomers[0].Code).Set("source", "/api/customer/list")
 	item2 := amis.NewFormItem().Set("type", "input-file").Set("name", "inputfile").Set("accept", ".xlsx").Set("label", "上传.xlsx文件").Set("maxSize", 10048576).Set("receiver", "/api/uploadfile")
-	pageConf.Body = *amis.NewForm("/api/potransform").AddItem(item1).AddItem(item2)
+	pageConf.Body = *amis.NewForm("/api/potransform", "").AddItem(item1).AddItem(item2)
 	ctx.Writer.Write(response.NewApiData(pageConf.Map(), "success", 0).Bytes())
 }
 
@@ -30,6 +30,7 @@ func getAmisCmdConfig(ctx httpsvr.Context) {
 	// }
 
 	item1 := amis.NewFormItem().Set("label", "操作类型").Set("type", "select").
+		Set("labelRemark", "点击“提交”后3-5分钟执行完成，请耐心等待！").
 		Set("name", "optname").Set("value", "userlist") // .Set("source", "/api/customer/list")
 	cmds, err := GetCmds()
 	if err != nil {
@@ -39,15 +40,22 @@ func getAmisCmdConfig(ctx httpsvr.Context) {
 	for _, cmdinfo := range cmds {
 		item1.AddSelectOption(cmdinfo.Title, cmdinfo.Name)
 	}
-	// .AddSelectOption("人员同步", "userlist").AddSelectOption("调试", "debug")
 
-	form1 := *amis.NewForm("/api/cmd/exec").AddItem(item1)
+	// 1. 添加提交表单
+	form1 := *amis.NewForm("/api/cmd/exec", title).AddItem(item1)
 
 	grid1 := amis.NewGrid()
-	grid1.Col(form1, 3)
+	// grid1.Col(form1, 3)
+
+	tips := amis.NewContainer("点击“提交”后3-5分钟执行完成，请耐心等待！").
+		StyleItem("color", "red").StyleItem("fontSize", "120%").
+		Map()
+	grid1.Col([]*amis.Grid{amis.NewGrid().Col(form1, 12), amis.NewGrid().Col(tips, 12)}, 3)
 	// "ws://localhost:8777"
 	wsaddr := conf.WebSocketAddr
 	// customComp  := amis.NewWebSocket(wsaddr)
+
+	// 2. 添加 websocket 命令回显框
 	customComp := amis.BuildWebSocketCustom(wsaddr, "cmd-output-area")
 	grid1.Col(customComp.Map(), 9)
 

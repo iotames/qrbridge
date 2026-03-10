@@ -51,6 +51,10 @@ func execmd(ctx httpsvr.Context) {
 		ctx.Writer.Write(response.NewApiDataFail("参数错误", 400).Bytes())
 		return
 	}
+	if optname == "userlist" {
+		ctx.Writer.Write(response.NewApiDataOk("点击“提交”后3-5分钟执行完成，请耐心等待！").Bytes())
+		return
+	}
 	ctx.Writer.Write(response.NewApiDataOk("执行成功").Bytes())
 }
 
